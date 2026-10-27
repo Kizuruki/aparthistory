@@ -1,259 +1,259 @@
 // ==== AP ART HISTORY: THE 250 REQUIRED WORKS ====
-// Identifiers follow the College Board AP Art History CED (Appendix A).
+// Identifiers follow the College Board AP Art History Course and Exam Description (effective fall 2020), Appendix list of required works.
 // One work per line:  number | title | artist | culture | location | date | material
 // Leave a field empty if the CED doesn't give it. Extra accepted answers go after "~"
 // (e.g. "Doryphoros (Spear Bearer)~Doryphoros~Spear Bearer"). The first value is what's shown.
 const WORKS_RAW = String.raw`
-1|Apollo 11 stones|||Namibia|c. 25,500–25,300 B.C.E.|Charcoal on stone
-2|Great Hall of the Bulls~Lascaux cave paintings||Paleolithic Europe|Lascaux, France|15,000–13,000 B.C.E.|Rock painting
-3|Camelid sacrum in the shape of a canine~Camelid sacrum|||Tequixquiac, central Mexico|14,000–7000 B.C.E.|Bone
-4|Running horned woman|||Tassili n'Ajjer, Algeria|6000–4000 B.C.E.|Pigment on rock
-5|Beaker with ibex motifs|||Susa, Iran|4200–3500 B.C.E.|Painted terra cotta
-6|Anthropomorphic stele|||Arabian Peninsula|Fourth millennium B.C.E.|Sandstone
-7|Jade cong~Cong|||Liangzhu, China|3300–2200 B.C.E.|Carved jade~Jade
-8|Stonehenge||Neolithic Europe|Wiltshire, UK|c. 2500–1600 B.C.E.|Sandstone
-9|The Ambum Stone|||Ambum Valley, Enga Province, Papua New Guinea|c. 1500 B.C.E.|Greywacke
-10|Tlatilco female figurine|||Central Mexico, site of Tlatilco|1200–900 B.C.E.|Ceramic
-11|Terra cotta fragment||Lapita|Solomon Islands, Reef Islands|1000 B.C.E.|Terra cotta (incised)
-12|White Temple and its ziggurat~White Temple||Sumerian|Uruk (modern Warka, Iraq)|c. 3500–3000 B.C.E.|Mud brick
-13|Palette of King Narmer~Narmer Palette||Predynastic Egypt||c. 3000–2920 B.C.E.|Greywacke
-14|Statues of votive figures, from the Square Temple at Eshnunna~Votive figures~Statues of votive figures~Eshnunna votive figures||Sumerian|Eshnunna (modern Tell Asmar, Iraq)|c. 2700 B.C.E.|Gypsum inlaid with shell and black limestone
-15|Seated scribe||Old Kingdom, Fourth Dynasty|Saqqara, Egypt|c. 2620–2500 B.C.E.|Painted limestone
-16|Standard of Ur from the Royal Tombs at Ur~Standard of Ur||Sumerian|Ur (modern Tell el-Muqayyar, Iraq)|c. 2600–2400 B.C.E.|Wood inlaid with shell, lapis lazuli, and red limestone
-17|Great Pyramids (Menkaura, Khafre, Khufu) and Great Sphinx~Great Pyramids~Pyramids of Giza~Great Pyramids and Great Sphinx||Old Kingdom, Fourth Dynasty|Giza, Egypt|c. 2550–2490 B.C.E.|Cut limestone
-18|King Menkaura and queen~Menkaura and queen||Old Kingdom, Fourth Dynasty||c. 2490–2472 B.C.E.|Greywacke
-19|The Code of Hammurabi~Code of Hammurabi~Stele of Hammurabi||Susian|Babylon (modern Iran)|c. 1792–1750 B.C.E.|Basalt
-20|Temple of Amun-Re and Hypostyle Hall~Temple of Amun-Re~Hypostyle Hall~Karnak||New Kingdom, 18th and 19th Dynasties|Karnak, near Luxor, Egypt|Temple: c. 1550 B.C.E.; hall: c. 1250 B.C.E.|Cut sandstone and mud brick
-21|Mortuary temple of Hatshepsut~Temple of Hatshepsut||New Kingdom, 18th Dynasty|Near Luxor, Egypt|c. 1473–1458 B.C.E.|Sandstone, partially carved into a rock cliff, and red granite
-22|Akhenaton, Nefertiti, and three daughters~Akhenaten, Nefertiti, and three daughters||New Kingdom (Amarna), 18th Dynasty~Amarna||c. 1353–1335 B.C.E.|Limestone
-23|Tutankhamun's tomb, innermost coffin~Tutankhamun's coffin~Tutankhamun's innermost coffin~King Tut's coffin||New Kingdom, 18th Dynasty||c. 1323 B.C.E.|Gold with inlay of enamel and semiprecious stones
-24|Last judgment of Hu-Nefer, from his tomb (page from the Book of the Dead)~Last judgment of Hu-Nefer~Last judgment of Hunefer~Judgment of Hunefer~Book of the Dead||New Kingdom, 19th Dynasty||c. 1275 B.C.E.|Painted papyrus scroll
-25|Lamassu from the citadel of Sargon II~Lamassu||Neo-Assyrian|Dur Sharrukin (modern Khorsabad, Iraq)|c. 720–705 B.C.E.|Alabaster
-26|Athenian agora~Agora||Archaic through Hellenistic Greek||600 B.C.E.–150 C.E.|Plan
-27|Anavysos Kouros~Kouros||Archaic Greek||c. 530 B.C.E.|Marble with remnants of paint
-28|Peplos Kore from the Acropolis~Peplos Kore||Archaic Greek||c. 530 B.C.E.|Marble, painted details
-29|Sarcophagus of the Spouses||Etruscan||c. 520 B.C.E.|Terra cotta
-30|Audience Hall (apadana) of Darius and Xerxes~Apadana~Audience Hall of Darius and Xerxes~Apadana of Darius and Xerxes||Persian|Persepolis, Iran|c. 520–465 B.C.E.|Limestone
-31|Temple of Minerva and sculpture of Apollo~Temple of Minerva~Apollo of Veii|Vulca (master sculptor)~Vulca||Veii, near Rome, Italy|c. 510–500 B.C.E.|Original temple of wood, mud brick, or tufa (volcanic rock); terra cotta sculpture~Wood, mud brick, or tufa; terra cotta~Terra cotta
-32|Tomb of the Triclinium||Etruscan|Tarquinia, Italy|c. 480–470 B.C.E.|Tufa and fresco
-33|Niobides Krater~Niobid Krater|Niobid Painter (anonymous vase painter)~Niobid Painter|Classical Greek~Classical Greece||c. 460–450 B.C.E.|Clay, red-figure technique (white highlights)~Red-figure clay
-34|Doryphoros (Spear Bearer)~Doryphoros~Spear Bearer|Polykleitos~Polyclitus|||Original 450–440 B.C.E.|Roman copy (marble) of Greek original (bronze)~Marble copy of a bronze original~Marble
-35|Acropolis~Athenian Acropolis~Parthenon|Iktinos and Kallikrates~Ictinus and Callicrates||Athens, Greece|c. 447–410 B.C.E.|Marble
-36|Grave stele of Hegeso~Stele of Hegeso|Kallimachos (attributed)~Kallimachos~Callimachus|||c. 410 B.C.E.|Marble and paint
-37|Winged Victory of Samothrace~Nike of Samothrace||Hellenistic Greek||c. 190 B.C.E.|Marble
-38|Great Altar of Zeus and Athena at Pergamon~Pergamon Altar~Altar of Zeus~Great Altar of Zeus||Hellenistic Greek|Pergamon, Asia Minor (present-day Turkey)|c. 175 B.C.E.|Marble (architecture and sculpture)
-39|House of the Vettii||Imperial Roman|Pompeii, Italy|c. second century B.C.E.; rebuilt c. 62–79 C.E.|Cut stone and fresco
-40|Alexander Mosaic from the House of Faun~Alexander Mosaic||Republican Roman|Pompeii|c. 100 B.C.E.|Mosaic
-41|Seated boxer~Boxer at Rest||Hellenistic Greek||c. 100 B.C.E.|Bronze
-42|Head of a Roman patrician||Republican Roman||c. 75–50 B.C.E.|Marble
-43|Augustus of Prima Porta~Augustus of Primaporta||Imperial Roman||Early first century C.E.|Marble
-44|Colosseum (Flavian Amphitheater)~Colosseum~Flavian Amphitheater||Imperial Roman|Rome, Italy|70–80 C.E.|Stone and concrete
-45|Forum of Trajan|Apollodorus of Damascus~Apollodorus||Rome, Italy|Forum and markets: 106–112 C.E.; column completed 113 C.E.|Brick and concrete (architecture); marble (column)
-46|Pantheon||Imperial Roman||118–125 C.E.|Concrete with stone facing
-47|Ludovisi Battle Sarcophagus||Late Imperial Roman||c. 250 C.E.|Marble
-48|Catacomb of Priscilla||Late Antique Europe|Rome, Italy|c. 200–400 C.E.|Excavated tufa and fresco
-49|Santa Sabina||Late Antique Europe|Rome, Italy|c. 422–432 C.E.|Brick and stone, wooden roof
-50|Rebecca and Eliezer at the Well and Jacob Wrestling the Angel, from the Vienna Genesis~Vienna Genesis~Rebecca and Eliezer at the Well~Jacob Wrestling the Angel||Early Byzantine Europe||Early sixth century C.E.|Illuminated manuscript (tempera, gold, and silver on purple vellum)
-51|San Vitale||Early Byzantine Europe|Ravenna, Italy|c. 526–547 C.E.|Brick, marble, and stone veneer; mosaic
-52|Hagia Sophia|Anthemius of Tralles and Isidorus of Miletus~Anthemius and Isidorus||Constantinople (Istanbul)|532–537 C.E.|Brick and ceramic elements with stone and mosaic veneer
-53|Merovingian looped fibulae~Looped fibulae||Early medieval Europe||Mid-sixth century C.E.|Silver gilt worked in filigree, with inlays of garnets and other stones
-54|Virgin (Theotokos) and Child between Saints Theodore and George~Theotokos and Child~Virgin and Child between Saints Theodore and George~Theotokos||Early Byzantine Europe||Sixth or early seventh century C.E.|Encaustic on wood
-55|Lindisfarne Gospels: St. Matthew, cross-carpet page; St. Luke portrait page; St. Luke incipit page~Lindisfarne Gospels||Early medieval (Hiberno Saxon) Europe~Hiberno Saxon||c. 700 C.E.|Illuminated manuscript (ink, pigments, and gold on vellum)
-56|Great Mosque (Córdoba)~Great Mosque~Great Mosque of Córdoba~Mezquita||Umayyad|Córdoba, Spain|c. 785–786 C.E.|Stone masonry
-57|Pyxis of al-Mughira||Umayyad||c. 968 C.E.|Ivory
-58|Church of Sainte-Foy~Sainte-Foy~Reliquary of Saint Foy||Romanesque Europe|Conques, France|Church: c. 1050–1130 C.E.; Reliquary of Saint Foy: ninth century C.E., with later additions|Stone (architecture); stone and paint (tympanum); gold, silver, gemstones, and enamel over wood (reliquary)
-59|Bayeux Tapestry||Romanesque Europe (English or Norman)||c. 1066–1080 C.E.|Embroidery on linen
-60|Chartres Cathedral||Gothic Europe|Chartres, France|Original construction c. 1145–1155 C.E.; reconstructed c. 1194–1220 C.E.|Limestone, stained glass
-61|Dedication Page with Blanche of Castile and King Louis IX of France, Scenes from the Apocalypse from Bibles moralisées~Bibles moralisées~Blanche of Castile and King Louis IX~Dedication Page with Blanche of Castile and King Louis IX of France||Gothic Europe||c. 1225–1245 C.E.|Illuminated manuscript (ink, tempera, and gold leaf on vellum)
-62|Röttgen Pietà||Late medieval Europe||c. 1300–1325 C.E.|Painted wood
-63|Arena (Scrovegni) Chapel, including Lamentation~Arena Chapel~Scrovegni Chapel~Lamentation|Giotto di Bondone (artist); unknown architect~Giotto di Bondone~Giotto||Padua, Italy|Chapel: c. 1303 C.E.; Fresco: c. 1305|Brick (architecture) and fresco
-64|Golden Haggadah (The Plagues of Egypt, Scenes of Liberation, and Preparation for Passover)~Golden Haggadah||Late medieval Spain||c. 1320 C.E.|Illuminated manuscript (pigments and gold leaf on vellum)
-65|Alhambra||Nasrid Dynasty|Granada, Spain|1354–1391 C.E.|Whitewashed adobe stucco, wood, tile, paint, and gilding
-66|Annunciation Triptych (Merode Altarpiece)~Merode Altarpiece~Annunciation Triptych|Workshop of Robert Campin~Robert Campin~Campin|||1427–1432 C.E.|Oil on wood
-67|Pazzi Chapel|Filippo Brunelleschi (architect)~Brunelleschi||Basilica di Santa Croce, Florence, Italy|c. 1429–1461 C.E.|Masonry
-68|The Arnolfini Portrait~Arnolfini Portrait|Jan van Eyck~Van Eyck|||c. 1434 C.E.|Oil on wood
-69|David|Donatello|||c. 1440–1460 C.E.|Bronze
-70|Palazzo Rucellai|Leon Battista Alberti (architect)~Alberti||Florence, Italy|c. 1450 C.E.|Stone, masonry
-71|Madonna and Child with Two Angels|Fra Filippo Lippi~Filippo Lippi~Lippi|||c. 1465 C.E.|Tempera on wood
-72|Birth of Venus~The Birth of Venus|Sandro Botticelli~Botticelli|||c. 1484–1486 C.E.|Tempera on canvas
-73|Last Supper~The Last Supper|Leonardo da Vinci~Leonardo~Da Vinci|||c. 1494–1498 C.E.|Oil and tempera
-74|Adam and Eve|Albrecht Dürer~Dürer|||1504 C.E.|Engraving
-75|Sistine Chapel ceiling and altar wall frescoes~Sistine Chapel~Sistine Chapel ceiling~Sistine Chapel frescoes|Michelangelo||Vatican City, Italy|Ceiling frescoes: c. 1508–1512 C.E.; altar frescoes: c. 1536–1541 C.E.|Fresco
-76|School of Athens~The School of Athens|Raphael|||1509–1511 C.E.|Fresco
-77|Isenheim altarpiece|Matthias Grünewald~Grünewald|||c. 1512–1516 C.E.|Oil on wood
-78|Entombment of Christ|Jacopo da Pontormo~Pontormo|||1525–1528 C.E.|Oil on wood
-79|Allegory of Law and Grace|Lucas Cranach the Elder~Lucas Cranach~Cranach|||c. 1530 C.E.|Woodcut and letterpress
-80|Venus of Urbino|Titian|||c. 1538 C.E.|Oil on canvas
-81|Frontispiece of the Codex Mendoza~Codex Mendoza||Viceroyalty of New Spain~New Spain||c. 1541–1542 C.E.|Ink and color on paper
-82|Il Gesù, including Triumph of the Name of Jesus ceiling fresco~Il Gesù~Triumph of the Name of Jesus|Giacomo da Vignola (plan); Giacomo della Porta (facade); Giovanni Battista Gaulli (ceiling fresco)~Vignola, della Porta, and Gaulli~Gaulli||Rome, Italy|Church: 16th century C.E.; facade: 1568–1584 C.E.; fresco and stucco figures: 1676–1679 C.E.|Brick, marble, fresco, and stucco
-83|Hunters in the Snow|Pieter Bruegel the Elder~Bruegel~Brueghel|||1565 C.E.|Oil on wood
-84|Mosque of Selim II~Selimiye Mosque|Sinan (architect)~Sinan||Edirne, Turkey|1568–1575 C.E.|Brick and stone
-85|Calling of Saint Matthew~The Calling of Saint Matthew|Caravaggio|||c. 1597–1601 C.E.|Oil on canvas
-86|Henri IV Receives the Portrait of Marie de' Medici, from the Marie de' Medici Cycle~Henri IV Receives the Portrait of Marie de' Medici~Marie de' Medici Cycle|Peter Paul Rubens~Rubens|||1621–1625 C.E.|Oil on canvas
-87|Self-Portrait with Saskia|Rembrandt van Rijn~Rembrandt|||1636 C.E.|Etching
-88|San Carlo alle Quattro Fontane~San Carlo|Francesco Borromini (architect)~Borromini||Rome, Italy|1638–1646 C.E.|Stone and stucco
-89|Ecstasy of Saint Teresa|Gian Lorenzo Bernini~Bernini||Cornaro Chapel, Church of Santa Maria della Vittoria, Rome, Italy|c. 1647–1652 C.E.|Marble (sculpture); stucco and gilt bronze (chapel)
-90|Angel with Arquebus, Asiel Timor Dei~Angel with Arquebus~Asiel Timor Dei|Master of Calamarca (La Paz School)~Master of Calamarca~La Paz School|||c. 17th century C.E.|Oil on canvas
-91|Las Meninas|Diego Velázquez~Velázquez|||c. 1656 C.E.|Oil on canvas
-92|Woman Holding a Balance|Johannes Vermeer~Vermeer|||c. 1664 C.E.|Oil on canvas
-93|The Palace at Versailles~Versailles~Palace of Versailles|Louis Le Vau and Jules Hardouin-Mansart (architects)~Le Vau and Hardouin-Mansart||Versailles, France|Begun 1669 C.E.|Masonry, stone, wood, iron, and gold leaf (architecture); marble and bronze (sculpture); gardens
-94|Screen with the Siege of Belgrade and hunting scene~Screen with the Siege of Belgrade~Siege of Belgrade screen|Circle of the González Family~González Family|||c. 1697–1701 C.E.|Tempera and resin on wood, shell inlay
-95|The Virgin of Guadalupe (Virgen de Guadalupe)~Virgin of Guadalupe~Virgen de Guadalupe|Miguel González~González||Mexico City (original in the Basilica of Guadalupe)|c. 1698 C.E. (original: 16th century C.E.)|Oil on canvas on wood, inlaid with mother-of-pearl
-96|Fruit and Insects|Rachel Ruysch~Ruysch|||1711 C.E.|Oil on wood
-97|Spaniard and Indian Produce a Mestizo|Juan Rodríguez Juárez (attributed)~Juan Rodríguez Juárez~Rodríguez Juárez|||c. 1715 C.E.|Oil on canvas
-98|The Tête à Tête, from Marriage à la Mode~The Tête à Tête~Tête à Tête~Marriage à la Mode|William Hogarth~Hogarth|||c. 1743 C.E.|Oil on canvas
-99|Portrait of Sor Juana Inés de la Cruz~Sor Juana Inés de la Cruz|Miguel Cabrera~Cabrera|||c. 1750 C.E.|Oil on canvas
-100|A Philosopher Giving a Lecture on the Orrery~Philosopher Giving a Lecture on the Orrery~The Orrery|Joseph Wright of Derby~Wright of Derby|||c. 1763–1765 C.E.|Oil on canvas
-101|The Swing|Jean-Honoré Fragonard~Fragonard|||1767 C.E.|Oil on canvas
-102|Monticello|Thomas Jefferson (architect)~Jefferson||Virginia, U.S.|1768–1809 C.E.|Brick, glass, stone, and wood
-103|The Oath of the Horatii~Oath of the Horatii|Jacques-Louis David~David|||1784 C.E.|Oil on canvas
-104|George Washington|Jean-Antoine Houdon~Houdon|||1788–1792 C.E.|Marble
-105|Self-Portrait|Elisabeth Louise Vigée Le Brun~Vigée Le Brun~Le Brun|||1790 C.E.|Oil on canvas
-106|Y no hai remedio (And There's Nothing to Be Done), from Los Desastres de la Guerra (The Disasters of War), plate 15~Y no hai remedio~And There's Nothing to Be Done~The Disasters of War~Los Desastres de la Guerra|Francisco de Goya~Goya|||1810–1823 C.E. (published 1863)|Etching, drypoint, burin, and burnishing
-107|La Grande Odalisque~Grande Odalisque|Jean-Auguste-Dominique Ingres~Ingres|||1814 C.E.|Oil on canvas
-108|Liberty Leading the People|Eugène Delacroix~Delacroix|||1830 C.E.|Oil on canvas
-109|The Oxbow (View from Mount Holyoke, Northampton, Massachusetts, after a Thunderstorm)~The Oxbow~Oxbow|Thomas Cole~Cole|||1836 C.E.|Oil on canvas
-110|Still Life in Studio|Louis-Jacques-Mandé Daguerre~Daguerre|||1837 C.E.|Daguerreotype
-111|Slave Ship (Slavers Throwing Overboard the Dead and Dying, Typhoon Coming On)~Slave Ship~The Slave Ship|Joseph Mallord William Turner~J. M. W. Turner~Turner|||1840 C.E.|Oil on canvas
-112|Palace of Westminster (Houses of Parliament)~Palace of Westminster~Houses of Parliament|Charles Barry and Augustus W. N. Pugin (architects)~Barry and Pugin||London, England|1840–1870 C.E.|Limestone masonry and glass
-113|The Stone Breakers~Stone Breakers|Gustave Courbet~Courbet|||1849 C.E. (destroyed in 1945)|Oil on canvas
-114|Nadar Raising Photography to the Height of Art|Honoré Daumier~Daumier|||1862 C.E.|Lithograph
-115|Olympia|Édouard Manet~Manet|||1863 C.E.|Oil on canvas
-116|The Saint-Lazare Station~Saint-Lazare Station~Gare Saint-Lazare|Claude Monet~Monet|||1877 C.E.|Oil on canvas
-117|The Horse in Motion~Horse in Motion|Eadweard Muybridge~Muybridge|||1878 C.E.|Albumen print
-118|The Valley of Mexico from the Hillside of Santa Isabel (El Valle de México desde el Cerro de Santa Isabel)~The Valley of Mexico from the Hillside of Santa Isabel~The Valley of Mexico~Valley of Mexico|José María Velasco~Velasco|||1882 C.E.|Oil on canvas
-119|The Burghers of Calais~Burghers of Calais|Auguste Rodin~Rodin|||1884–1895 C.E.|Bronze
-120|The Starry Night~Starry Night|Vincent van Gogh~Van Gogh|||1889 C.E.|Oil on canvas
-121|The Coiffure|Mary Cassatt~Cassatt|||1890–1891 C.E.|Drypoint and aquatint
-122|The Scream|Edvard Munch~Munch|||1893 C.E.|Tempera and pastels on cardboard
-123|Where Do We Come From? What Are We? Where Are We Going?|Paul Gauguin~Gauguin|||1897–1898 C.E.|Oil on canvas
-124|Carson, Pirie, Scott and Company Building~Carson Pirie Scott Building|Louis Sullivan (architect)~Sullivan||Chicago, Illinois, U.S.|1899–1903 C.E.|Iron, steel, glass, and terra cotta
-125|Mont Sainte-Victoire|Paul Cézanne~Cézanne|||1902–1904 C.E.|Oil on canvas
-126|Les Demoiselles d'Avignon|Pablo Picasso~Picasso|||1907 C.E.|Oil on canvas
-127|The Steerage~Steerage|Alfred Stieglitz~Stieglitz|||1907 C.E.|Photogravure
-128|The Kiss|Gustav Klimt~Klimt|||1907–1908 C.E.|Oil and gold leaf on canvas
-129|The Kiss|Constantin Brancusi~Brancusi|||1907–1908 C.E.|Limestone
-130|The Portuguese|Georges Braque~Braque|||1911 C.E.|Oil on canvas
-131|Goldfish|Henri Matisse~Matisse|||1912 C.E.|Oil on canvas
-132|Improvisation 28 (second version)~Improvisation 28|Vassily Kandinsky~Wassily Kandinsky~Kandinsky|||1912 C.E.|Oil on canvas
-133|Self-Portrait as a Soldier|Ernst Ludwig Kirchner~Kirchner|||1915 C.E.|Oil on canvas
-134|Memorial Sheet for Karl Liebknecht|Käthe Kollwitz~Kollwitz|||1919–1920 C.E.|Woodcut
-135|Villa Savoye|Le Corbusier (architect)~Le Corbusier~Corbusier||Poissy-sur-Seine, France|1929 C.E.|Steel and reinforced concrete
-136|Composition with Red, Blue and Yellow|Piet Mondrian~Mondrian|||1930 C.E.|Oil on canvas
-137|Illustration from The Results of the First Five-Year Plan~The Results of the First Five-Year Plan~Results of the First Five-Year Plan|Varvara Stepanova~Stepanova|||1932 C.E.|Photomontage
-138|Object (Le Déjeuner en fourrure)~Object~Le Déjeuner en fourrure~Fur-covered teacup|Meret Oppenheim~Oppenheim|||1936 C.E.|Fur-covered cup, saucer, and spoon
-139|Fallingwater|Frank Lloyd Wright (architect)~Frank Lloyd Wright||Pennsylvania, U.S.|1936–1939 C.E.|Reinforced concrete, sandstone, steel, and glass
-140|The Two Fridas~Two Fridas|Frida Kahlo~Kahlo|||1939 C.E.|Oil on canvas
-141|The Migration of the Negro, Panel no. 49~The Migration of the Negro~Migration Series~Panel no. 49|Jacob Lawrence~Lawrence|||1940–1941 C.E.|Casein tempera on hardboard
-142|The Jungle|Wifredo Lam~Lam|||1943 C.E.|Gouache on paper mounted on canvas
-143|Dream of a Sunday Afternoon in the Alameda Park|Diego Rivera~Rivera|||1947–1948 C.E.|Fresco
-144|Fountain (second version)~Fountain|Marcel Duchamp~Duchamp|||1950 C.E. (original 1917)|Readymade glazed sanitary china with black paint~Readymade porcelain urinal~Readymade
-145|Woman, I~Woman I~Woman 1|Willem de Kooning~De Kooning|||1950–1952 C.E.|Oil on canvas
-146|Seagram Building|Ludwig Mies van der Rohe and Philip Johnson (architects)~Mies van der Rohe and Philip Johnson~Mies van der Rohe||New York City, U.S.|1954–1958 C.E.|Steel frame with glass curtain wall and bronze
-147|Marilyn Diptych|Andy Warhol~Warhol|||1962 C.E.|Oil, acrylic, and silkscreen enamel on canvas
+1|Apollo 11 stones|||Namibia|c. 25,500–25,300 BCE|Charcoal on stone
+2|Great Hall of the Bulls~Lascaux cave paintings||Paleolithic Europe|Lascaux, France|15,000–13,000 BCE|Rock painting
+3|Camelid sacrum in the shape of a canine~Camelid sacrum|||Tequixquiac, central Mexico|14,000–7000 BCE|Bone
+4|Running horned woman|||Tassili n'Ajjer, Algeria|6000–4000 BCE|Pigment on rock
+5|Beaker with ibex motifs|||Susa, Iran|4200–3500 BCE|Painted terra cotta
+6|Anthropomorphic stele|||Arabian Peninsula|Fourth millennium BCE|Sandstone
+7|Jade cong~Cong|||Liangzhu, China|3300–2200 BCE|Carved jade~Jade
+8|Stonehenge||Neolithic Europe|Wiltshire, UK|c. 2500–1600 BCE|Sandstone
+9|The Ambum stone~The Ambum Stone~Ambum stone|||Ambum Valley, Enga Province, Papua New Guinea|c. 1500 BCE|Greywacke
+10|Tlatilco female figurine|||Central Mexico, site of Tlatilco|1200–900 BCE|Ceramic
+11|Terra cotta fragment||Lapita|Reef Islands, Solomon Islands|1000 BCE|Terra cotta (incised)
+12|White Temple and its ziggurat~White Temple||Sumerian|Uruk (modern Warka, Iraq)|c. 3500–3000 BCE|Mud brick
+13|Palette of King Narmer~Narmer Palette||Predynastic Egypt||c. 3000–2920 BCE|Greywacke
+14|Statues of votive figures, from the Square Temple at Eshnunna (modern Tell Asmar, Iraq)~Statues of votive figures, from the Square Temple at Eshnunna~Votive figures~Statues of votive figures~Eshnunna votive figures||Sumerian|Eshnunna (modern Tell Asmar, Iraq)|c. 2700 BCE|Gypsum inlaid with shell and black limestone
+15|Seated scribe||Old Kingdom, Fourth Dynasty|Saqqara, Egypt|c. 2620–2500 BCE|Painted limestone
+16|Standard of Ur from the Royal Tombs at Ur (modern Tell el-Muqayyar, Iraq)~Standard of Ur from the Royal Tombs at Ur~Standard of Ur||Sumerian|Ur (modern Tell el-Muqayyar, Iraq)|c. 2600–2400 BCE|Wood inlaid with shell, lapis lazuli, and red limestone
+17|Great Pyramids (Menkaura, Khafre, Khufu) and Great Sphinx~Great Pyramids~Pyramids of Giza~Great Pyramids and Great Sphinx||Old Kingdom, Fourth Dynasty|Giza, Egypt|c. 2550–2490 BCE|Cut limestone
+18|King Menkaura and queen~Menkaura and queen||Old Kingdom, Fourth Dynasty||c. 2490–2472 BCE|Greywacke
+19|The Code of Hammurabi~Code of Hammurabi~Stele of Hammurabi||Susian|Babylon (modern Iran)|c. 1792–1750 BCE|Basalt
+20|Temple of Amun-Re and Hypostyle Hall~Temple of Amun-Re~Hypostyle Hall~Karnak||New Kingdom, 18th and 19th Dynasties|Karnak, near Luxor, Egypt|Temple: c. 1550 BCE; hall: c. 1250 BCE|Cut sandstone and mud brick
+21|Mortuary temple of Hatshepsut~Temple of Hatshepsut||New Kingdom, 18th Dynasty|Near Luxor, Egypt|c. 1473–1458 BCE|Sandstone, partially carved into a rock cliff, and red granite
+22|Akhenaten, Nefertiti, and three daughters~Akhenaton, Nefertiti, and three daughters||New Kingdom (Amarna), 18th Dynasty~Amarna||c. 1353–1335 BCE|Limestone
+23|Tutankhamun's tomb, innermost coffin~Tutankhamun's coffin~Tutankhamun's innermost coffin~King Tut's coffin||New Kingdom, 18th Dynasty||c. 1323 BCE|Gold with inlay of enamel and semiprecious stones
+24|Last judgment of Hunefer, from his tomb (page from the Book of the Dead)~Last judgment of Hunefer~Last judgment of Hu-Nefer~Judgment of Hunefer~Book of the Dead||New Kingdom, 19th Dynasty||c. 1275 BCE|Painted papyrus scroll
+25|Lamassu from the citadel of Sargon II, Dur Sharrukin (modern Khorsabad, Iraq)~Lamassu from the citadel of Sargon II~Lamassu||Neo-Assyrian|Dur Sharrukin (modern Khorsabad, Iraq)|c. 720–705 BCE|Alabaster
+26|Athenian agora~Agora||Archaic through Hellenistic Greek||600 BCE–150 CE|Plan
+27|Anavysos Kouros~Kouros||Archaic Greek||c. 530 BCE|Marble with remnants of paint
+28|Peplos Kore from the Acropolis~Peplos Kore||Archaic Greek||c. 530 BCE|Marble, painted details
+29|Sarcophagus of the Spouses||Etruscan||c. 520 BCE|Terra cotta
+30|Audience Hall (apadana) of Darius and Xerxes~Apadana~Audience Hall of Darius and Xerxes~Apadana of Darius and Xerxes||Persian|Persepolis, Iran|c. 520–465 BCE|Limestone
+31|Temple of Minerva (Veii, near Rome, Italy) and sculpture of Apollo~Temple of Minerva and sculpture of Apollo~Temple of Minerva~Apollo of Veii|Vulca (master sculptor)~Vulca||Veii, near Rome, Italy|c. 510–500 BCE|Original temple of wood, mud brick, or tufa (volcanic rock); terra cotta sculpture~Wood, mud brick, or tufa; terra cotta~Terra cotta
+32|Tomb of the Triclinium||Etruscan|Tarquinia, Italy|c. 480–470 BCE|Tufa and fresco
+33|Niobides Krater~Niobid Krater|Niobid Painter (anonymous vase painter)~Niobid Painter|Classical Greek~Classical Greece||c. 460–450 BCE|Clay, red-figure technique (white highlights)~Red-figure clay
+34|Doryphoros (Spear Bearer)~Doryphoros~Spear Bearer|Polykleitos~Polyclitus|||Original 450–440 BCE|Roman copy (marble) of Greek original (bronze)~Marble copy of a bronze original~Marble
+35|Acropolis~Athenian Acropolis~Parthenon|Iktinos and Kallikrates~Ictinus and Callicrates||Athens, Greece|c. 447–410 BCE|Marble
+36|Grave stele of Hegeso~Stele of Hegeso|Kallimachos (attributed)~Kallimachos~Callimachus|||c. 410 BCE|Marble and paint
+37|Winged Victory of Samothrace~Nike of Samothrace||Hellenistic Greek||c. 190 BCE|Marble
+38|Great Altar of Zeus and Athena at Pergamon~Pergamon Altar~Altar of Zeus~Great Altar of Zeus||Hellenistic Greek|Pergamon, Asia Minor (present-day Turkey)|c. 175 BCE|Marble (architecture and sculpture)
+39|House of the Vettii||Imperial Roman|Pompeii, Italy|c. second century BCE; rebuilt c. 62–79 CE|Cut stone and fresco
+40|Alexander Mosaic from the House of Faun, Pompeii~Alexander Mosaic from the House of Faun~Alexander Mosaic||Republican Roman|Pompeii|c. 100 BCE|Mosaic
+41|Seated boxer~Boxer at Rest||Hellenistic Greek||c. 100 BCE|Bronze
+42|Head of a Roman patrician||Republican Roman||c. 75–50 BCE|Marble
+43|Augustus of Prima Porta~Augustus of Primaporta||Imperial Roman||Early first century CE|Marble
+44|Colosseum (Flavian Amphitheater)~Colosseum~Flavian Amphitheater||Imperial Roman|Rome, Italy|70–80 CE|Stone and concrete
+45|Forum of Trajan|Apollodorus of Damascus~Apollodorus||Rome, Italy|Forum and markets: 106–112 CE; column completed 113 CE|Brick and concrete (architecture); marble (column)
+46|Pantheon||Imperial Roman||118–125 CE|Concrete with stone facing
+47|Ludovisi Battle Sarcophagus||Late Imperial Roman||c. 250 CE|Marble
+48|Catacomb of Priscilla||Late Antique Europe|Rome, Italy|c. 200–400 CE|Excavated tufa and fresco
+49|Santa Sabina||Late Antique Europe|Rome, Italy|c. 422–432 CE|Brick and stone, wooden roof
+50|Rebecca and Eliezer at the Well and Jacob Wrestling the Angel, from the Vienna Genesis~Vienna Genesis~Rebecca and Eliezer at the Well~Jacob Wrestling the Angel||Early Byzantine Europe||Early sixth century CE|Illuminated manuscript (tempera, gold, and silver on purple vellum)
+51|San Vitale||Early Byzantine Europe|Ravenna, Italy|c. 526–547 CE|Brick, marble, and stone veneer; mosaic
+52|Hagia Sophia|Anthemius of Tralles and Isidorus of Miletus~Anthemius and Isidorus||Constantinople (Istanbul)|532–537 CE|Brick and ceramic elements with stone and mosaic veneer
+53|Merovingian looped fibulae~Looped fibulae||Early medieval Europe||Mid-sixth century CE|Silver gilt worked in filigree, with inlays of garnets and other stones
+54|Virgin (Theotokos) and Child between Saints Theodore and George~Theotokos and Child~Virgin and Child between Saints Theodore and George~Theotokos||Early Byzantine Europe||Sixth or early seventh century CE|Encaustic on wood
+55|Lindisfarne Gospels: St. Matthew, cross-carpet page; St. Luke portrait page; St. Luke incipit page~Lindisfarne Gospels||Early medieval (Hiberno Saxon) Europe~Hiberno Saxon||c. 700 CE|Illuminated manuscript (ink, pigments, and gold on vellum)
+56|Great Mosque~Great Mosque of Córdoba~Mezquita||Umayyad|Córdoba, Spain|c. 785–786 CE|Stone masonry
+57|Pyxis of al-Mughira||Umayyad||c. 968 CE|Ivory
+58|Church of Sainte-Foy~Sainte-Foy~Reliquary of Saint Foy||Romanesque Europe|Conques, France|Church: c. 1050–1130 CE; Reliquary of Saint Foy: ninth century CE, with later additions|Stone (architecture); stone and paint (tympanum); gold, silver, gemstones, and enamel over wood (reliquary)
+59|Bayeux Tapestry||Romanesque Europe (English or Norman)||c. 1066–1080 CE|Embroidery on linen
+60|Chartres Cathedral||Gothic Europe|Chartres, France|Original construction c. 1145–1155 CE; reconstructed c. 1194–1220 CE|Limestone, stained glass
+61|Dedication Page with Blanche of Castile and King Louis IX of France, Scenes from the Apocalypse from Bibles moralisées~Bibles moralisées~Blanche of Castile and King Louis IX~Dedication Page with Blanche of Castile and King Louis IX of France||Gothic Europe||c. 1225–1245 CE|Illuminated manuscript (ink, tempera, and gold leaf on vellum) (2 images, each from a separate manuscript)~Illuminated manuscript (ink, tempera, and gold leaf on vellum)
+62|Röttgen Pietà||Late medieval Europe||c. 1300–1325 CE|Painted wood
+63|Arena (Scrovegni) Chapel, including Lamentation~Arena Chapel~Scrovegni Chapel~Lamentation|Giotto di Bondone (artist); unknown architect~Giotto di Bondone~Giotto||Padua, Italy|Chapel: c. 1303 CE; Fresco: c. 1305|Brick (architecture) and fresco
+64|Golden Haggadah (The Plagues of Egypt, Scenes of Liberation, and Preparation for Passover)~Golden Haggadah||Late medieval Spain||c. 1320 CE|Illuminated manuscript (pigments and gold leaf on vellum)
+65|Alhambra||Nasrid Dynasty|Granada, Spain|1354–1391 CE|Whitewashed adobe stucco, wood, tile, paint, and gilding
+66|Annunciation Triptych (Merode Altarpiece)~Merode Altarpiece~Annunciation Triptych|Workshop of Robert Campin~Robert Campin~Campin|||1427–1432 CE|Oil on wood
+67|Pazzi Chapel|Filippo Brunelleschi (architect)~Brunelleschi||Basilica di Santa Croce, Florence, Italy|c. 1429–1461 CE|Masonry
+68|The Arnolfini Portrait~Arnolfini Portrait|Jan van Eyck~Van Eyck|||c. 1434 CE|Oil on wood
+69|David|Donatello|||c. 1440–1460 CE|Bronze
+70|Palazzo Rucellai|Leon Battista Alberti (architect)~Alberti||Florence, Italy|c. 1450 CE|Stone, masonry
+71|Madonna and Child with Two Angels|Fra Filippo Lippi~Filippo Lippi~Lippi|||c. 1465 CE|Tempera on wood
+72|Birth of Venus~The Birth of Venus|Sandro Botticelli~Botticelli|||c. 1484–1486 CE|Tempera on canvas
+73|Last Supper~The Last Supper|Leonardo da Vinci~Leonardo~Da Vinci|||c. 1494–1498 CE|Oil and tempera
+74|Adam and Eve|Albrecht Dürer~Dürer|||1504 CE|Engraving
+75|Sistine Chapel ceiling and altar wall frescoes~Sistine Chapel~Sistine Chapel ceiling~Sistine Chapel frescoes|Michelangelo||Vatican City, Italy|Ceiling frescoes: c. 1508–1512 CE; altar frescoes: c. 1536–1541 CE|Fresco
+76|School of Athens~The School of Athens|Raphael|||1509–1511 CE|Fresco
+77|Isenheim altarpiece|Matthias Grünewald~Grünewald|||c. 1512–1516 CE|Oil on wood
+78|Entombment of Christ|Jacopo da Pontormo~Pontormo|||1525–1528 CE|Oil on wood
+79|Allegory of Law and Grace|Lucas Cranach the Elder~Lucas Cranach~Cranach|||c. 1530 CE|Woodcut and letterpress
+80|Venus of Urbino|Titian|||c. 1538 CE|Oil on canvas
+81|Frontispiece of the Codex Mendoza~Codex Mendoza||Viceroyalty of New Spain~New Spain||c. 1541–1542 CE|Ink and color on paper
+82|Il Gesù, including Triumph of the Name of Jesus ceiling fresco~Il Gesù~Triumph of the Name of Jesus|Giacomo da Vignola (plan); Giacomo della Porta (facade); Giovanni Battista Gaulli (ceiling fresco)~Vignola, della Porta, and Gaulli~Gaulli||Rome, Italy|Church: 16th century CE; facade: 1568–1584 CE; fresco and stucco figures: 1676–1679 CE|Brick, marble, fresco, and stucco
+83|Hunters in the Snow|Pieter Bruegel the Elder~Bruegel~Brueghel|||1565 CE|Oil on wood
+84|Mosque of Selim II~Selimiye Mosque|Sinan (architect)~Sinan||Edirne, Turkey|1568–1575 CE|Brick and stone
+85|Calling of Saint Matthew~The Calling of Saint Matthew|Caravaggio|||c. 1597–1601 CE|Oil on canvas
+86|Henri IV Receives the Portrait of Marie de' Medici, from the Marie de' Medici Cycle~Henri IV Receives the Portrait of Marie de' Medici~Marie de' Medici Cycle|Peter Paul Rubens~Rubens|||1621–1625 CE|Oil on canvas
+87|Self-Portrait with Saskia|Rembrandt van Rijn~Rembrandt|||1636 CE|Etching
+88|San Carlo alle Quattro Fontane~San Carlo|Francesco Borromini (architect)~Borromini||Rome, Italy|1638–1646 CE|Stone and stucco
+89|Ecstasy of Saint Teresa|Gian Lorenzo Bernini~Bernini||Cornaro Chapel, Church of Santa Maria della Vittoria, Rome, Italy|c. 1647–1652 CE|Marble (sculpture); stucco and gilt bronze (chapel)
+90|Angel with Arquebus, Asiel Timor Dei~Angel with Arquebus~Asiel Timor Dei|Master of Calamarca (La Paz School)~Master of Calamarca~La Paz School|||c. 17th century CE|Oil on canvas
+91|Las Meninas|Diego Velázquez~Velázquez|||c. 1656 CE|Oil on canvas
+92|Woman Holding a Balance|Johannes Vermeer~Vermeer|||c. 1664 CE|Oil on canvas
+93|The Palace at Versailles~Versailles~Palace of Versailles|Louis Le Vau and Jules Hardouin-Mansart (architects)~Le Vau and Hardouin-Mansart||Versailles, France|Begun 1669 CE|Masonry, stone, wood, iron, and gold leaf (architecture); marble and bronze (sculpture); gardens
+94|Screen with the Siege of Belgrade and hunting scene~Screen with the Siege of Belgrade~Siege of Belgrade screen|Circle of the González Family~González Family|||c. 1697–1701 CE|Tempera and resin on wood, shell inlay
+95|The Virgin of Guadalupe (Virgen de Guadalupe)~Virgin of Guadalupe~Virgen de Guadalupe|Miguel González~González||Mexico City (original in the Basilica of Guadalupe)|c. 1698 CE (original: 16th century CE)|Oil on canvas on wood, inlaid with mother-of-pearl
+96|Fruit and Insects|Rachel Ruysch~Ruysch|||1711 CE|Oil on wood
+97|Spaniard and Indian Produce a Mestizo|Juan Rodríguez Juárez (attributed)~Juan Rodríguez Juárez~Rodríguez Juárez|||c. 1715 CE|Oil on canvas
+98|The Tête à Tête, from Marriage à la Mode~The Tête à Tête~Tête à Tête~Marriage à la Mode|William Hogarth~Hogarth|||c. 1743 CE|Oil on canvas
+99|Portrait of Sor Juana Inés de la Cruz~Sor Juana Inés de la Cruz|Miguel Cabrera~Cabrera|||c. 1750 CE|Oil on canvas
+100|A Philosopher Giving a Lecture on the Orrery~Philosopher Giving a Lecture on the Orrery~The Orrery|Joseph Wright of Derby~Wright of Derby|||c. 1763–1765 CE|Oil on canvas
+101|The Swing|Jean-Honoré Fragonard~Fragonard|||1767 CE|Oil on canvas
+102|Monticello|Thomas Jefferson (architect)~Jefferson||Virginia, U.S.|1768–1809 CE|Brick, glass, stone, and wood
+103|The Oath of the Horatii~Oath of the Horatii|Jacques-Louis David~David|||1784 CE|Oil on canvas
+104|George Washington|Jean-Antoine Houdon~Houdon|||1788–1792 CE|Marble
+105|Self-Portrait|Elisabeth Louise Vigée Le Brun~Vigée Le Brun~Le Brun|||1790 CE|Oil on canvas
+106|Y no hai remedio (And There's Nothing to Be Done), from Los Desastres de la Guerra (The Disasters of War), plate 15~Y no hai remedio~And There's Nothing to Be Done~The Disasters of War~Los Desastres de la Guerra|Francisco de Goya~Goya|||1810–1823 CE (published 1863)|Etching, drypoint, burin, and burnishing
+107|La Grande Odalisque~Grande Odalisque|Jean-Auguste-Dominique Ingres~Ingres|||1814 CE|Oil on canvas
+108|Liberty Leading the People|Eugène Delacroix~Delacroix|||1830 CE|Oil on canvas
+109|The Oxbow (View from Mount Holyoke, Northampton, Massachusetts, after a Thunderstorm)~The Oxbow~Oxbow|Thomas Cole~Cole|||1836 CE|Oil on canvas
+110|Still Life in Studio|Louis-Jacques-Mandé Daguerre~Daguerre|||1837 CE|Daguerreotype
+111|Slave Ship (Slavers Throwing Overboard the Dead and Dying, Typhoon Coming On)~Slave Ship~The Slave Ship|Joseph Mallord William Turner~J. M. W. Turner~Turner|||1840 CE|Oil on canvas
+112|Palace of Westminster (Houses of Parliament)~Palace of Westminster~Houses of Parliament|Charles Barry and Augustus W. N. Pugin (architects)~Barry and Pugin||London, England|1840–1870 CE|Limestone masonry and glass
+113|The Stone Breakers~Stone Breakers|Gustave Courbet~Courbet|||1849 CE (destroyed in 1945)|Oil on canvas
+114|Nadar Raising Photography to the Height of Art|Honoré Daumier~Daumier|||1862 CE|Lithograph
+115|Olympia|Édouard Manet~Manet|||1863 CE|Oil on canvas
+116|The Saint-Lazare Station~Saint-Lazare Station~Gare Saint-Lazare|Claude Monet~Monet|||1877 CE|Oil on canvas
+117|The Horse in Motion~Horse in Motion|Eadweard Muybridge~Muybridge|||1878 CE|Albumen print
+118|The Valley of Mexico from the Hillside of Santa Isabel (El Valle de México desde el Cerro de Santa Isabel)~The Valley of Mexico from the Hillside of Santa Isabel~The Valley of Mexico~Valley of Mexico|José María Velasco~Velasco|||1882 CE|Oil on canvas
+119|The Burghers of Calais~Burghers of Calais|Auguste Rodin~Rodin|||1884–1895 CE|Bronze
+120|The Starry Night~Starry Night|Vincent van Gogh~Van Gogh|||1889 CE|Oil on canvas
+121|The Coiffure|Mary Cassatt~Cassatt|||1890–1891 CE|Drypoint and aquatint
+122|The Scream|Edvard Munch~Munch|||1893 CE|Tempera and pastels on cardboard
+123|Where Do We Come From? What Are We? Where Are We Going?|Paul Gauguin~Gauguin|||1897–1898 CE|Oil on canvas
+124|Carson, Pirie, Scott and Company Building~Carson Pirie Scott Building|Louis Sullivan (architect)~Sullivan||Chicago, Illinois, U.S.|1899–1903 CE|Iron, steel, glass, and terra cotta
+125|Mont Sainte-Victoire|Paul Cézanne~Cézanne|||1902–1904 CE|Oil on canvas
+126|Les Demoiselles d'Avignon|Pablo Picasso~Picasso|||1907 CE|Oil on canvas
+127|The Steerage~Steerage|Alfred Stieglitz~Stieglitz|||1907 CE|Photogravure
+128|The Kiss|Gustav Klimt~Klimt|||1907–1908 CE|Oil and gold leaf on canvas
+129|The Kiss|Constantin Brancusi~Brancusi|||Original 1907–1908 CE|Stone~Limestone
+130|The Portuguese|Georges Braque~Braque|||1911 CE|Oil on canvas
+131|Goldfish|Henri Matisse~Matisse|||1912 CE|Oil on canvas
+132|Improvisation 28 (second version)~Improvisation 28|Vassily Kandinsky~Wassily Kandinsky~Kandinsky|||1912 CE|Oil on canvas
+133|Self-Portrait as a Soldier|Ernst Ludwig Kirchner~Kirchner|||1915 CE|Oil on canvas
+134|Memorial Sheet for Karl Liebknecht|Käthe Kollwitz~Kollwitz|||1919–1920 CE|Woodcut
+135|Villa Savoye|Le Corbusier (architect)~Le Corbusier~Corbusier||Poissy-sur-Seine, France|1929 CE|Steel and reinforced concrete
+136|Composition with Red, Blue and Yellow|Piet Mondrian~Mondrian|||1930 CE|Oil on canvas
+137|Illustration from The Results of the First Five-Year Plan~The Results of the First Five-Year Plan~Results of the First Five-Year Plan|Varvara Stepanova~Stepanova|||1932 CE|Photomontage
+138|Object (Le Déjeuner en fourrure)~Object~Le Déjeuner en fourrure~Fur-covered teacup|Meret Oppenheim~Oppenheim|||1936 CE|Fur-covered cup, saucer, and spoon
+139|Fallingwater|Frank Lloyd Wright (architect)~Frank Lloyd Wright||Pennsylvania, U.S.|1936–1939 CE|Reinforced concrete, sandstone, steel, and glass
+140|The Two Fridas~Two Fridas|Frida Kahlo~Kahlo|||1939 CE|Oil on canvas
+141|The Migration Series, Panel 49~The Migration Series~Migration Series~The Migration of the Negro, Panel no. 49~The Migration of the Negro|Jacob Lawrence~Lawrence|||1940–1941 CE|Casein tempera on hardboard
+142|The Jungle|Wifredo Lam~Lam|||1943 CE|Gouache on paper mounted on canvas
+143|Dream of a Sunday Afternoon in the Alameda Park|Diego Rivera~Rivera|||1947–1948 CE|Fresco
+144|Fountain (second version)~Fountain|Marcel Duchamp~Duchamp|||1950 CE (original 1917)|Readymade glazed sanitary china with black paint~Readymade porcelain urinal~Readymade
+145|Woman, I~Woman I~Woman 1|Willem de Kooning~De Kooning|||1950–1952 CE|Oil on canvas
+146|Seagram Building|Ludwig Mies van der Rohe and Philip Johnson (architects)~Mies van der Rohe and Philip Johnson~Mies van der Rohe||New York City, U.S.|1954–1958 CE|Steel frame with glass curtain wall and bronze
+147|Marilyn Diptych|Andy Warhol~Warhol|||1962 CE|Oil, acrylic, and silkscreen enamel on canvas
 148|Narcissus Garden|Yayoi Kusama~Kusama|||Original installation and performance 1966|Mirror balls
-149|The Bay|Helen Frankenthaler~Frankenthaler|||1963 C.E.|Acrylic on canvas
-150|Lipstick (Ascending) on Caterpillar Tracks~Lipstick Ascending on Caterpillar Tracks|Claes Oldenburg~Oldenburg|||1969–1974 C.E.|Cor-Ten steel, steel, aluminum, and cast resin; painted with polyurethane enamel
-151|Spiral Jetty|Robert Smithson~Smithson||Great Salt Lake, Utah, U.S.|1970 C.E.|Earthwork: mud, precipitated salt crystals, rocks, and water coil~Earthwork
-152|House in New Castle County|Robert Venturi, John Rauch, and Denise Scott Brown (architects)~Venturi, Rauch, and Scott Brown~Venturi||Delaware, U.S.|1978–1983 C.E.|Wood frame and stucco
-153|Chavín de Huántar||Chavín|Northern highlands, Peru|900–200 B.C.E.|Stone (architectural complex); granite (Lanzón and sculpture); hammered gold alloy (jewelry)
-154|Mesa Verde cliff dwellings~Mesa Verde||Ancestral Puebloan (Anasazi)~Ancestral Puebloan~Anasazi|Montezuma County, Colorado|450–1300 C.E.|Sandstone
-155|Yaxchilán||Maya|Chiapas, Mexico|725 C.E.|Limestone (architectural complex)
-156|Great Serpent Mound~Serpent Mound||Mississippian (Eastern Woodlands)~Mississippian|Adams County, southern Ohio|c. 1070 C.E.|Earthwork/effigy mound
-157|Templo Mayor (Main Temple)~Templo Mayor~Main Temple||Mexica (Aztec)~Aztec~Mexica|Tenochtitlan (modern Mexico City, Mexico)|1375–1520 C.E.|Stone (temple); volcanic stone (The Coyolxauhqui Stone); jadeite (Olmec-style mask); basalt (Calendar Stone)
-158|Ruler's feather headdress (probably of Motecuhzoma II)~Ruler's feather headdress~Feather headdress~Headdress of Motecuhzoma II~Headdress of Moctezuma||Mexica (Aztec)~Aztec~Mexica||1428–1520 C.E.|Feathers (quetzal and cotinga) and gold
-159|City of Cusco, including Qorikancha (Inka main temple), Santo Domingo (Spanish colonial convent), and Walls at Saqsa Waman (Sacsayhuaman)~City of Cusco~Cusco~Qorikancha~Sacsayhuaman||Inka~Inca|Central highlands, Peru|c. 1440 C.E.; convent added 1550–1650 C.E.|Andesite
-160|Maize cobs||Inka~Inca||c. 1440–1533 C.E.|Sheet metal/repoussé, metal alloys
-161|City of Machu Picchu~Machu Picchu||Inka~Inca|Central highlands, Peru|c. 1450–1540 C.E.|Granite (architectural complex)
-162|All-T'oqapu tunic~All-Toqapu tunic~Toqapu tunic||Inka~Inca||1450–1540 C.E.|Camelid fiber and cotton
-163|Bandolier bag||Lenape (Delaware tribe, Eastern Woodlands)~Lenape~Delaware||c. 1850 C.E.|Beadwork on leather
-164|Transformation mask||Kwakwaka'wakw|Northwest coast of Canada|Late 19th century C.E.|Wood, paint, and string
-165|Painted elk hide|Cotsiogo (Cadzi Cody) (attributed)~Cotsiogo~Cadzi Cody|Eastern Shoshone|Wind River Reservation, Wyoming|c. 1890–1900 C.E.|Painted elk hide
-166|Black-on-black ceramic vessel~Black-on-black vessel~Blackware vessel|Maria Martínez and Julian Martínez~Maria Martínez~Martínez|Tewa, Puebloan~Puebloan~Tewa|San Ildefonso Pueblo, New Mexico|c. mid-20th century C.E.|Blackware ceramic
-167|Conical tower and circular wall of Great Zimbabwe~Great Zimbabwe||Shona peoples|Southeastern Zimbabwe|c. 1000–1400 C.E.|Coursed granite blocks
-168|Great Mosque of Djenné~Djenné~Great Mosque of Djenne|||Mali|Founded c. 1200 C.E.; rebuilt 1906–1907|Adobe
-169|Wall plaque, from Oba's palace~Wall plaque~Benin plaque~Benin bronze||Edo peoples|Benin (Nigeria)|16th century C.E.|Cast brass
-170|Sika dwa kofi (Golden Stool)~Golden Stool~Sika dwa kofi||Ashanti peoples~Asante|South central Ghana|c. 1700 C.E.|Gold over wood and cast-gold attachments
-171|Ndop (portrait figure) of King Mishe miShyaang maMbul~Ndop~Ndop of King Mishe miShyaang maMbul||Kuba peoples|Democratic Republic of the Congo~Congo~DRC|c. 1760–1780 C.E.|Wood
-172|Power figure (Nkisi n'kondi)~Nkisi n'kondi~Power figure||Kongo peoples|Democratic Republic of the Congo~Congo~DRC|c. late 19th century C.E.|Wood and metal
-173|Female (Pwo) mask~Pwo mask~Female mask||Chokwe peoples|Democratic Republic of the Congo~Congo~DRC|Late 19th to early 20th century C.E.|Wood, fiber, pigment, and metal
-174|Portrait mask (Mblo)~Mblo~Portrait mask||Baule peoples|Côte d'Ivoire|Early 20th century C.E.|Wood and pigment
-175|Bundu mask~Sowei mask||Sande Society, Mende peoples~Mende~Sande Society|West African forests of Sierra Leone and Liberia|19th to 20th century C.E.|Wood, cloth, and fiber
-176|Ikenga (shrine figure)~Ikenga||Igbo peoples|Nigeria|c. 19th to 20th century C.E.|Wood
-177|Lukasa (memory board)~Lukasa~Memory board||Mbudye Society, Luba peoples~Luba peoples~Luba|Democratic Republic of the Congo~Congo~DRC|c. 19th to 20th century C.E.|Wood, beads, and metal
-178|Aka elephant mask~Elephant mask||Bamileke|Cameroon, western grassfields region|c. 19th to 20th century C.E.|Wood, woven raffia, cloth, and beads
-179|Reliquary figure (byeri)~Byeri~Reliquary figure||Fang peoples|Southern Cameroon|c. 19th to 20th century C.E.|Wood
-180|Veranda post of enthroned king and senior wife (Opo Ogoga)~Veranda post~Opo Ogoga|Olowe of Ise~Olowe|Yoruba peoples||c. 1910–1914 C.E.|Wood and pigment
-181|Petra: Treasury and Great Temple~Petra~Treasury and Great Temple~Treasury at Petra||Nabataean Ptolemaic and Roman~Nabataean|Petra, Jordan|c. 400 B.C.E.–100 C.E.|Cut rock
-182|Buddha (Bamiyan)~Buddha~Bamiyan Buddha~Buddhas of Bamiyan||Gandharan|Bamiyan, Afghanistan|c. 400–800 C.E. (destroyed in 2001)|Cut rock with plaster and polychrome paint
-183|The Kaaba~Kaaba~Ka'ba||Islamic|Mecca, Saudi Arabia|Pre-Islamic monument; rededicated by Muhammad in 631–632 C.E.; multiple renovations|Granite masonry, covered with silk curtain and calligraphy in gold and silver-wrapped thread
-184|Jowo Rinpoche, enshrined in the Jokhang Temple~Jowo Rinpoche||Yarlung Dynasty|Jokhang Temple, Lhasa, Tibet|Believed to have been brought to Tibet in 641 C.E.|Gilt metals with semiprecious stones, pearls, and paint; various offerings
-185|Dome of the Rock||Islamic, Umayyad~Umayyad|Jerusalem|691–692 C.E., with multiple renovations|Stone masonry and wooden roof decorated with glazed ceramic tile, mosaics, and gilt aluminum and bronze dome
-186|Great Mosque (Masjid-e Jameh)~Masjid-e Jameh~Great Mosque of Isfahan~Great Mosque||Islamic, Persian: Seljuk, Il-Khanid, Timurid and Safavid Dynasties~Persian~Seljuk|Isfahan, Iran|c. 700 C.E.; additions and restorations in the 14th, 18th, and 20th centuries C.E.|Stone, brick, wood, plaster, and glazed ceramic tile
-187|Folio from a Qur'an~Qur'an folio||Abbasid|Arab, North Africa, or Near East|c. eighth to ninth century C.E.|Ink, color, and gold on parchment
-188|Basin (Baptistère de St. Louis)~Baptistère de St. Louis~Baptistère de Saint Louis|Muhammad ibn al-Zain~ibn al-Zain|||c. 1320–1340 C.E.|Brass inlaid with gold and silver
-189|Bahram Gur Fights the Karg, folio from the Great Il-Khanid Shahnama~Bahram Gur Fights the Karg||Islamic; Persian, Il-Khanid~Il-Khanid~Persian||c. 1330–1340 C.E.|Ink and opaque watercolor, gold, and silver on paper
-190|The Court of Gayumars, folio from Shah Tahmasp's Shahnama~The Court of Gayumars~Court of Gayumars|Sultan Muhammad|||c. 1522–1525 C.E.|Ink, opaque watercolor, and gold on paper
-191|The Ardabil Carpet~Ardabil Carpet|Maqsud of Kashan~Maqsud|||1539–1540 C.E.|Silk and wool
-192|Great Stupa at Sanchi~Great Stupa~Sanchi Stupa||Buddhist; Maurya, late Sunga Dynasty~Maurya~Buddhist~Sunga|Madhya Pradesh, India|c. 300 B.C.E.–100 C.E.|Stone masonry, sandstone on dome
-193|Terra cotta warriors from mausoleum of the first Qin emperor of China~Terra cotta warriors~Terracotta Army||Qin Dynasty||c. 221–209 B.C.E.|Painted terra cotta
-194|Funeral banner of Lady Dai (Xin Zhui)~Funeral banner of Lady Dai~Lady Dai banner||Han Dynasty|China|c. 180 B.C.E.|Painted silk
-195|Longmen caves~Longmen Grottoes||Tang Dynasty|Luoyang, China|493–1127 C.E.|Limestone
-196|Gold and jade crown~Silla crown||Three Kingdoms Period, Silla Kingdom~Silla Kingdom~Silla|Korea|Fifth to sixth century C.E.|Metalwork
-197|Todai-ji|Unkei, Keikei, and the Kei School (sculptors)~Unkei and Keikei~Kei School||Nara, Japan|743 C.E.; rebuilt c. 1700|Bronze and wood (sculpture); wood with ceramic-tile roofing (architecture)
-198|Borobudur Temple~Borobudur||Sailendra Dynasty|Central Java, Indonesia|c. 750–842 C.E.|Volcanic-stone masonry
-199|Angkor, the temple of Angkor Wat, and the city of Angkor Thom~Angkor Wat~Angkor~Angkor Thom||Hindu, Angkor Dynasty~Angkor Dynasty~Khmer|Cambodia|c. 800–1400 C.E.|Stone masonry, sandstone
-200|Lakshmana Temple||Hindu, Chandella Dynasty~Chandella Dynasty|Khajuraho, India|c. 930–950 C.E.|Sandstone
-201|Travelers among Mountains and Streams|Fan Kuan|||c. 1000 C.E.|Ink and colors on silk
-202|Shiva as Lord of Dance (Nataraja)~Shiva as Lord of Dance~Shiva Nataraja~Nataraja||Hindu; Chola Dynasty~Chola Dynasty~Chola|India (Tamil Nadu)|c. 11th century C.E.|Cast bronze
-203|Night Attack on the Sanjô Palace~Night Attack on the Sanjo Palace||Kamakura Period|Japan|c. 1250–1300 C.E.|Handscroll (ink and color on paper)
-204|The David Vases~David Vases||Yuan Dynasty|China|1351 C.E.|White porcelain with cobalt-blue underglaze
-205|Portrait of Sin Sukju (1417–1475)~Portrait of Sin Sukju~Sin Sukju|Imperial Bureau of Painting|||c. 15th century C.E.|Hanging scroll (ink and color on silk)
-206|Forbidden City||Ming Dynasty|Beijing, China|15th century C.E. and later|Stone masonry, marble, brick, wood, and ceramic tile
-207|Ryoan-ji||Muromachi Period|Kyoto, Japan|c. 1480 C.E.; current design most likely dates to the 18th century|Rock garden
-208|Jahangir Preferring a Sufi Shaikh to Kings|Bichitr|||c. 1620 C.E.|Watercolor, gold, and ink on paper
-209|Taj Mahal|Ustad Ahmad Lahori (supervising architect)~Ahmad Lahori~Lahori||Agra, Uttar Pradesh, India|1632–1653 C.E.|Stone masonry and marble with inlay of precious and semiprecious stones; gardens
-210|White and Red Plum Blossoms~Red and White Plum Blossoms|Ogata Korin~Korin|||c. 1710–1716 C.E.|Ink, watercolor, and gold leaf on paper
-211|Under the Wave off Kanagawa (the Great Wave), from Thirty-six Views of Mount Fuji~Under the Wave off Kanagawa~The Great Wave~Great Wave off Kanagawa~Great Wave|Katsushika Hokusai~Hokusai|||1830–1833 C.E.|Polychrome woodblock print; ink and color on paper~Woodblock print
-212|Chairman Mao en Route to Anyuan|Artist unknown; based on an oil painting by Liu Chunhua~Liu Chunhua|||c. 1969 C.E.|Color lithograph
-213|Nan Madol||Saudeleur Dynasty|Pohnpei, Micronesia|c. 700–1600 C.E.|Basalt boulders and prismatic columns
-214|Moai on platform (ahu)~Moai~Moai on platform~Moai on ahu|||Rapa Nui (Easter Island)|c. 1100–1600 C.E.|Volcanic tuff figures on basalt base
-215|'Ahu 'ula (feather cape)~'Ahu 'ula~Feather cape||Hawaiian||Late 18th century C.E.|Feathers and fiber
-216|Staff god|||Rarotonga, Cook Islands, central Polynesia|Late 18th to early 19th century C.E.|Wood, tapa, fiber, and feathers
-217|Female deity|||Nukuoro, Micronesia|c. 18th to 19th century C.E.|Wood
-218|Buk (mask)~Buk~Buk mask|||Torres Strait|Mid- to late 19th century C.E.|Turtle shell, wood, fiber, feathers, and shell
-219|Hiapo (tapa)~Hiapo|||Niue|c. 1850–1900 C.E.|Tapa or bark cloth, freehand painting
-220|Tamati Waka Nene|Gottfried Lindauer~Lindauer|||1890 C.E.|Oil on canvas
-221|Navigation chart~Stick chart~Marshall Islands stick chart|||Marshall Islands, Micronesia|19th to early 20th century C.E.|Wood and fiber
-222|Malagan display and mask~Malagan mask~Malagan|||New Ireland Province, Papua New Guinea|c. 20th century C.E.|Wood, pigment, fiber, and shell
-223|Presentation of Fijian mats and tapa cloths to Queen Elizabeth II~Presentation of Fijian mats and tapa cloths|||Fiji, Polynesia|1953 C.E.|Multimedia performance (costume; cosmetics, including scent; chant; movement; and pandanus fiber/hibiscus fiber mats), photographic documentation~Multimedia performance
-224|The Gates|Christo and Jeanne-Claude~Christo||New York City, U.S.|1979–2005 C.E.|Mixed-media installation
-225|Vietnam Veterans Memorial|Maya Lin||Washington, D.C., U.S.|1982 C.E.|Granite
-226|Horn Players|Jean-Michel Basquiat~Basquiat|||1983 C.E.|Acrylic and oil paintstick on three canvas panels
-227|Summer Trees|Song Su-nam|||1983 C.E.|Ink on paper
-228|Androgyn III|Magdalena Abakanowicz~Abakanowicz|||1985 C.E.|Burlap, resin, wood, nails, string
-229|A Book from the Sky~Book from the Sky|Xu Bing|||1987–1991 C.E.|Mixed-media installation
-230|Pink Panther|Jeff Koons~Koons|||1988 C.E.|Glazed porcelain
-231|Untitled (#228), from the History Portraits series~Untitled (#228)~Untitled 228~History Portraits|Cindy Sherman~Sherman|||1990 C.E.|Photograph
-232|Dancing at the Louvre, from the series The French Collection, Part I; #1~Dancing at the Louvre|Faith Ringgold~Ringgold|||1991 C.E.|Acrylic on canvas, tie-dyed, pieced fabric border
-233|Trade (Gifts for Trading Land with White People)~Trade|Jaune Quick-to-See Smith~Quick-to-See Smith|||1992 C.E.|Oil and mixed media on canvas
-234|Earth's Creation|Emily Kame Kngwarreye~Kngwarreye|||1994 C.E.|Synthetic polymer paint on canvas
-235|Rebellious Silence, from the Women of Allah series~Rebellious Silence~Women of Allah|Shirin Neshat (artist); photo by Cynthia Preston~Shirin Neshat~Neshat|||1994 C.E.|Ink on photograph
-236|En la Barberia no se Llora (No Crying Allowed in the Barbershop)~No Crying Allowed in the Barbershop~En la Barberia no se Llora|Pepon Osorio~Osorio|||1994 C.E.|Mixed-media installation
-237|Pisupo Lua Afe (Corned Beef 2000)~Pisupo Lua Afe~Corned Beef 2000|Michel Tuffery~Tuffery|||1994 C.E.|Mixed media
-238|Electronic Superhighway|Nam June Paik~Paik|||1995 C.E.|Mixed-media installation (49-channel closed-circuit video installation, neon, steel, and electronic components)
-239|The Crossing|Bill Viola~Viola|||1996 C.E.|Video/sound installation
-240|Guggenheim Museum Bilbao~Guggenheim Bilbao|Frank Gehry (architect)~Gehry||Bilbao, Spain|1997 C.E.|Titanium, glass, and limestone
-241|Pure Land|Mariko Mori~Mori|||1998 C.E.|Color photograph on glass
-242|Lying with the Wolf|Kiki Smith|||2001 C.E.|Ink and pencil on paper
-243|Darkytown Rebellion|Kara Walker~Walker|||2001 C.E.|Cut paper and projection on wall
-244|The Swing (after Fragonard)|Yinka Shonibare~Shonibare|||2001 C.E.|Mixed-media installation
-245|Old Man's Cloth|El Anatsui~Anatsui|||2003 C.E.|Aluminum and copper wire
-246|Stadia II|Julie Mehretu~Mehretu|||2004 C.E.|Ink and acrylic on canvas
-247|Preying Mantra|Wangechi Mutu~Mutu|||2006 C.E.|Mixed media on Mylar
-248|Shibboleth|Doris Salcedo~Salcedo|||2007–2008 C.E.|Installation
-249|MAXXI National Museum of XXI Century Arts~MAXXI|Zaha Hadid (architect)~Hadid||Rome, Italy|2009 C.E.|Glass, steel, and cement
-250|Kui Hua Zi (Sunflower Seeds)~Sunflower Seeds~Kui Hua Zi|Ai Weiwei|||2010–2011 C.E.|Sculpted and painted porcelain
+149|The Bay|Helen Frankenthaler~Frankenthaler|||1963 CE|Acrylic on canvas
+150|Lipstick (Ascending) on Caterpillar Tracks~Lipstick Ascending on Caterpillar Tracks|Claes Oldenburg~Oldenburg|||1969–1974 CE|Cor-Ten steel, steel, aluminum, and cast resin; painted with polyurethane enamel
+151|Spiral Jetty|Robert Smithson~Smithson||Great Salt Lake, Utah, U.S.|1970 CE|Earthwork: mud, precipitated salt crystals, rocks, and water coil~Earthwork
+152|House in New Castle County|Robert Venturi, John Rauch, and Denise Scott Brown (architects)~Venturi, Rauch, and Scott Brown~Venturi||Delaware, U.S.|1978–1983 CE|Wood frame and stucco
+153|Chavín de Huántar||Chavín|Northern highlands, Peru|900–200 BCE|Stone (architectural complex); granite (Lanzón and sculpture); hammered gold alloy (jewelry)
+154|Mesa Verde cliff dwellings~Mesa Verde||Ancestral Puebloan (Anasazi)~Ancestral Puebloan~Anasazi|Montezuma County, Colorado|450–1300 CE|Sandstone
+155|Yaxchilán||Maya|Chiapas, Mexico|725 CE|Limestone (architectural complex)
+156|Great Serpent Mound~Serpent Mound||Mississippian (Eastern Woodlands)~Mississippian|Adams County, southern Ohio|c. 1070 CE|Earthwork/effigy mound
+157|Templo Mayor (Main Temple)~Templo Mayor~Main Temple||Mexica (Aztec)~Aztec~Mexica|Tenochtitlan (modern Mexico City, Mexico)|1375–1520 CE|Stone (temple); volcanic stone (The Coyolxauhqui Stone); jadeite (Olmec-style mask); basalt (Calendar Stone)
+158|Ruler's feather headdress (probably of Motecuhzoma II)~Ruler's feather headdress~Feather headdress~Headdress of Motecuhzoma II~Headdress of Moctezuma||Mexica (Aztec)~Aztec~Mexica||1428–1520 CE|Feathers (quetzal and cotinga) and gold
+159|City of Cusco, including Qorikancha (Inka main temple), Santo Domingo (Spanish colonial convent), and Walls at Saqsa Waman (Sacsayhuaman)~City of Cusco~Cusco~Qorikancha~Sacsayhuaman||Inka~Inca|Central highlands, Peru|c. 1440 CE; convent added 1550–1650 CE|Andesite
+160|Maize cobs||Inka~Inca||c. 1440–1533 CE|Sheet metal/repoussé, metal alloys
+161|City of Machu Picchu~Machu Picchu||Inka~Inca|Central highlands, Peru|c. 1450–1540 CE|Granite (architectural complex)
+162|All-T'oqapu tunic~All-Toqapu tunic~Toqapu tunic||Inka~Inca||1450–1540 CE|Camelid fiber and cotton
+163|Bandolier bag||Lenape (Delaware tribe, Eastern Woodlands)~Lenape~Delaware||c. 1850 CE|Beadwork on leather
+164|Transformation mask||Kwakwaka'wakw|Northwest coast of Canada|Late 19th century CE|Wood, paint, and string
+165|Painted elk hide|Cotsiogo (Cadzi Cody) (attributed)~Cotsiogo~Cadzi Cody|Eastern Shoshone|Wind River Reservation, Wyoming|c. 1890–1900 CE|Painted elk hide
+166|Black-on-black ceramic vessel~Black-on-black vessel~Blackware vessel|Maria Martínez and Julian Martínez~Maria Martínez~Martínez|Tewa, Puebloan~Puebloan~Tewa|San Ildefonso Pueblo, New Mexico|c. mid-20th century CE|Blackware ceramic
+167|Conical tower and circular wall of Great Zimbabwe~Great Zimbabwe||Shona peoples|Southeastern Zimbabwe|c. 1000–1400 CE|Coursed granite blocks
+168|Great Mosque of Djenné~Djenné~Great Mosque of Djenne|||Mali|Founded c. 1200 CE; rebuilt 1906–1907|Adobe
+169|Wall plaque, from Oba's palace~Wall plaque~Benin plaque~Benin bronze||Edo peoples|Kingdom of Benin (Nigeria)~Benin (Nigeria)|16th century CE|Cast brass
+170|Sika dwa kofi (Golden Stool)~Golden Stool~Sika dwa kofi||Ashanti peoples~Asante|South central Ghana|c. 1700 CE|Gold over wood and cast-gold attachments
+171|Ndop (portrait figure) of King Mishe miShyaang maMbul~Ndop~Ndop of King Mishe miShyaang maMbul||Kuba peoples|Democratic Republic of the Congo~Congo~DRC|c. 1760–1780 CE|Wood
+172|Power figure (Nkisi n'kondi)~Nkisi n'kondi~Power figure||Kongo peoples|Democratic Republic of the Congo~Congo~DRC|c. late 19th century CE|Wood and metal
+173|Female (Pwo) mask~Pwo mask~Female mask||Chokwe peoples|Democratic Republic of the Congo~Congo~DRC|Late 19th to early 20th century CE|Wood, fiber, pigment, and metal
+174|Portrait mask (Mblo)~Mblo~Portrait mask||Baule peoples|Côte d'Ivoire|Early 20th century CE|Wood and pigment
+175|Sande Sowei mask~Sowei mask~Bundu mask||Sande Society, Mende peoples~Mende~Sande Society|West African forests of Sierra Leone and Liberia|19th to 20th century CE|Wood, cloth, and fiber
+176|Ikenga (shrine figure)~Ikenga||Igbo peoples|Nigeria|c. 19th to 20th century CE|Wood
+177|Lukasa (memory board)~Lukasa~Memory board||Mbudye Society, Luba peoples~Luba peoples~Luba|Democratic Republic of the Congo~Congo~DRC|c. 19th to 20th century CE|Wood, beads, and metal
+178|Aka elephant mask~Elephant mask||Bamileke|Cameroon, western grassfields region|c. 19th to 20th century CE|Wood, woven raffia, cloth, and beads
+179|Reliquary figure (byeri)~Byeri~Reliquary figure||Fang peoples|Southern Cameroon|c. 19th to 20th century CE|Wood
+180|Veranda post of enthroned king and senior wife (Opo Ogoga)~Veranda post~Opo Ogoga|Olowe of Ise~Olowe|Yoruba peoples||c. 1910–1914 CE|Wood and pigment
+181|Petra, Jordan: Treasury and Great Temple~Petra~Treasury and Great Temple~Treasury at Petra||Nabataean Ptolemaic and Roman~Nabataean|Petra, Jordan|c. 400 BCE–100 CE|Cut rock
+182|Buddha~Bamiyan Buddha~Buddhas of Bamiyan||Gandharan|Bamiyan, Afghanistan|c. 400–800 CE (destroyed in 2001)|Cut rock with plaster and polychrome paint
+183|The Kaaba~Kaaba~Ka'ba||Islamic|Mecca, Saudi Arabia|Pre-Islamic monument; rededicated by Muhammad in 631–632 CE; multiple renovations|Granite masonry, covered with silk curtain and calligraphy in gold and silver-wrapped thread
+184|Jowo Rinpoche, enshrined in the Jokhang Temple~Jowo Rinpoche||Yarlung Dynasty|Jokhang Temple, Lhasa, Tibet|Believed to have been brought to Tibet in 641 CE|Gilt metals with semiprecious stones, pearls, and paint; various offerings
+185|Dome of the Rock||Islamic, Umayyad~Umayyad|Jerusalem|691–692 CE, with multiple renovations|Stone masonry and wooden roof decorated with glazed ceramic tile, mosaics, and gilt aluminum and bronze dome
+186|Great Mosque (Masjid-e Jameh)~Masjid-e Jameh~Great Mosque of Isfahan~Great Mosque||Islamic, Persian: Seljuk, Il-Khanid, Timurid and Safavid Dynasties~Persian~Seljuk|Isfahan, Iran|c. 700 CE; additions and restorations in the 14th, 18th, and 20th centuries CE|Stone, brick, wood, plaster, and glazed ceramic tile
+187|Folio from a Qur'an~Qur'an folio||Abbasid|Arab, North Africa, or Near East|c. eighth to ninth century CE|Ink, color, and gold on parchment
+188|Basin (Baptistère de St. Louis)~Baptistère de St. Louis~Baptistère de Saint Louis|Muhammad ibn al-Zain~ibn al-Zain|||c. 1320–1340 CE|Brass inlaid with gold and silver
+189|Bahram Gur Fights the Karg, folio from the Great Il-Khanid Shahnama~Bahram Gur Fights the Karg||Islamic; Persian, Il-Khanid~Il-Khanid~Persian||c. 1330–1340 CE|Ink and opaque watercolor, gold, and silver on paper
+190|The Court of Gayumars, folio from Shah Tahmasp's Shahnama~The Court of Gayumars~Court of Gayumars|Sultan Muhammad|||c. 1522–1525 CE|Ink, opaque watercolor, and gold on paper
+191|The Ardabil Carpet~Ardabil Carpet|Maqsud of Kashan~Maqsud|||1539–1540 CE|Silk and wool
+192|Great Stupa at Sanchi~Great Stupa~Sanchi Stupa||Buddhist; Maurya, late Sunga Dynasty~Maurya~Buddhist~Sunga|Madhya Pradesh, India|c. 300 BCE–100 CE|Stone masonry, sandstone on dome
+193|Terra cotta warriors from mausoleum of the first Qin emperor of China~Terra cotta warriors~Terracotta Army||Qin Dynasty||c. 221–209 BCE|Painted terra cotta
+194|Funeral banner of Lady Dai (Xin Zhui)~Funeral banner of Lady Dai~Lady Dai banner||Han Dynasty|China|c. 180 BCE|Painted silk
+195|Longmen caves~Longmen Grottoes||Tang Dynasty|Luoyang, China|493–1127 CE|Limestone
+196|Gold and jade crown~Silla crown||Three Kingdoms period, Silla Kingdom~Silla Kingdom~Silla|Korea|Fifth to sixth century CE|Metalwork
+197|Todai-ji|Unkei, Keikei, and the Kei School (sculptors)~Unkei and Keikei~Kei School||Nara, Japan|743 CE; rebuilt c. 1700|Bronze and wood (sculpture); wood with ceramic-tile roofing (architecture)
+198|Borobudur Temple~Borobudur||Sailendra Dynasty|Central Java, Indonesia|c. 750–842 CE|Volcanic-stone masonry
+199|Angkor, the temple of Angkor Wat, and the city of Angkor Thom~Angkor Wat~Angkor~Angkor Thom||Hindu, Angkor Dynasty~Angkor Dynasty~Khmer|Cambodia|c. 800–1400 CE|Stone masonry, sandstone
+200|Lakshmana Temple||Hindu, Chandella Dynasty~Chandella Dynasty|Khajuraho, India|c. 930–950 CE|Sandstone
+201|Travelers among Mountains and Streams|Fan Kuan|||c. 1000 CE|Ink and colors on silk
+202|Shiva as Lord of Dance (Nataraja)~Shiva as Lord of Dance~Shiva Nataraja~Nataraja||Hindu; Chola Dynasty~Chola Dynasty~Chola|India (Tamil Nadu)|c. 11th century CE|Cast bronze
+203|Night Attack on the Sanjô Palace~Night Attack on the Sanjo Palace||Kamakura period|Japan|c. 1250–1300 CE|Handscroll (ink and color on paper)
+204|The David Vases~David Vases||Yuan Dynasty|China|1351 CE|White porcelain with cobalt-blue underglaze
+205|Portrait of Sin Sukju (1417–1475)~Portrait of Sin Sukju~Sin Sukju|Imperial Bureau of Painting|||c. 15th century CE|Hanging scroll (ink and color on silk)
+206|Forbidden City||Ming Dynasty|Beijing, China|15th century CE and later|Stone masonry, marble, brick, wood, and ceramic tile
+207|Ryoan-ji||Muromachi period|Kyoto, Japan|c. 1480 CE; current design most likely dates to the 18th century CE|Rock garden
+208|Jahangir Preferring a Sufi Shaikh to Kings|Bichitr|||c. 1620 CE|Watercolor, gold, and ink on paper
+209|Taj Mahal|Ustad Ahmad Lahori (supervising architect)~Ahmad Lahori~Lahori||Agra, Uttar Pradesh, India|1632–1653 CE|Stone masonry and marble with inlay of precious and semiprecious stones; gardens
+210|White and Red Plum Blossoms~Red and White Plum Blossoms|Ogata Korin~Korin|||c. 1710–1716 CE|Ink, watercolor, and gold leaf on paper
+211|Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as the Great Wave, from the series Thirty-six Views of Mount Fuji~Under the Wave off Kanagawa~The Great Wave~Great Wave off Kanagawa~Great Wave|Katsushika Hokusai~Hokusai|||1830–1833 CE|Polychrome woodblock print; ink and color on paper~Woodblock print
+212|Chairman Mao en Route to Anyuan|Artist unknown; based on an oil painting by Liu Chunhua~Liu Chunhua|||c. 1969 CE|Color lithograph
+213|Nan Madol||Saudeleur Dynasty|Pohnpei, Micronesia|c. 700–1600 CE|Basalt boulders and prismatic columns
+214|Moai on platform (ahu)~Moai~Moai on platform~Moai on ahu|||Rapa Nui (Easter Island)|c. 1100–1600 CE|Volcanic tuff figures on basalt base
+215|'Ahu 'ula (feather cape)~'Ahu 'ula~Feather cape||Hawaiian||Late 18th century CE|Feathers and fiber
+216|Staff god|||Rarotonga, Cook Islands, central Polynesia|Late 18th to early 19th century CE|Wood, tapa, fiber, and feathers
+217|Female deity|||Nukuoro, Micronesia|c. 18th to 19th century CE|Wood
+218|Buk (mask)~Buk~Buk mask|||Torres Strait|Mid- to late 19th century CE|Turtle shell, wood, fiber, feathers, and shell
+219|Hiapo (tapa)~Hiapo|||Niue|c. 1850–1900 CE|Tapa or bark cloth, freehand painting
+220|Tamati Waka Nene|Gottfried Lindauer~Lindauer|||1890 CE|Oil on canvas
+221|Navigation chart~Stick chart~Marshall Islands stick chart|||Marshall Islands, Micronesia|19th to early 20th century CE|Wood and fiber
+222|Malagan display and mask~Malagan mask~Malagan|||New Ireland Province, Papua New Guinea|c. 20th century CE|Wood, pigment, fiber, and shell
+223|Presentation of Fijian mats and tapa cloths to Queen Elizabeth II~Presentation of Fijian mats and tapa cloths|||Fiji, Polynesia|1953 CE|Multimedia performance (costume; cosmetics, including scent; chant; movement; and pandanus fiber/hibiscus fiber mats), photographic documentation~Multimedia performance
+224|The Gates|Christo and Jeanne-Claude~Christo||New York City, U.S.|1979–2005 CE|Mixed-media installation
+225|Vietnam Veterans Memorial|Maya Lin||Washington, D.C., U.S.|1982 CE|Granite
+226|Horn Players|Jean-Michel Basquiat~Basquiat|||1983 CE|Acrylic and oil paintstick on three canvas panels
+227|Summer Trees|Song Su-nam|||1979 CE|Ink on paper
+228|Androgyne III~Androgyn III|Magdalena Abakanowicz~Abakanowicz|||1985 CE|Burlap, resin, wood, nails, string
+229|A Book from the Sky~Book from the Sky|Xu Bing|||1987–1991 CE|Mixed-media installation
+230|Pink Panther|Jeff Koons~Koons|||1988 CE|Glazed porcelain
+231|Untitled #228, from the History Portraits series~Untitled #228~Untitled (#228)~Untitled 228~History Portraits|Cindy Sherman~Sherman|||1990 CE|Photograph
+232|Dancing at the Louvre, from the series The French Collection, Part I; #1~Dancing at the Louvre|Faith Ringgold~Ringgold|||1991 CE|Acrylic on canvas, tie-dyed, pieced fabric border
+233|Trade (Gifts for Trading Land with White People)~Trade|Jaune Quick-to-See Smith~Quick-to-See Smith|||1992 CE|Oil and mixed media on canvas
+234|Earth's Creation|Emily Kame Kngwarreye~Kngwarreye|||1994 CE|Synthetic polymer paint on canvas
+235|Rebellious Silence, from the Women of Allah series~Rebellious Silence~Women of Allah|Shirin Neshat (artist); photo by Cynthia Preston~Shirin Neshat~Neshat|||1994 CE|Ink on photograph
+236|En la Barberia no se Llora (No Crying Allowed in the Barbershop)~No Crying Allowed in the Barbershop~En la Barberia no se Llora|Pepon Osorio~Osorio|||1994 CE|Mixed-media installation
+237|Pisupo Lua Afe (Corned Beef 2000)~Pisupo Lua Afe~Corned Beef 2000|Michel Tuffery~Tuffery|||1994 CE|Mixed media
+238|Electronic Superhighway|Nam June Paik~Paik|||1995 CE|Mixed-media installation (49-channel closed-circuit video installation, neon, steel, and electronic components)
+239|The Crossing|Bill Viola~Viola|||1996 CE|Video/sound installation
+240|Guggenheim Museum Bilbao~Guggenheim Bilbao|Frank Gehry (architect)~Gehry||Bilbao, Spain|1997 CE|Titanium, glass, and limestone
+241|Pure Land|Mariko Mori~Mori|||1998 CE|Color photograph on glass
+242|Lying with the Wolf|Kiki Smith|||2001 CE|Ink and pencil on paper
+243|Darkytown Rebellion|Kara Walker~Walker|||2001 CE|Cut paper and projection on wall
+244|The Swing (after Fragonard)|Yinka Shonibare~Shonibare|||2001 CE|Mixed-media installation
+245|Old Man's Cloth|El Anatsui~Anatsui|||2003 CE|Aluminum and copper wire
+246|Stadia II|Julie Mehretu~Mehretu|||2004 CE|Ink and acrylic on canvas
+247|Preying Mantra|Wangechi Mutu~Mutu|||2006 CE|Mixed media on Mylar
+248|Shibboleth|Doris Salcedo~Salcedo|||2007–2008 CE|Installation
+249|MAXXI National Museum of XXI Century Arts~MAXXI|Zaha Hadid (architect)~Hadid||Rome, Italy|2009 CE|Glass, steel, and cement
+250|Kui Hua Zi (Sunflower Seeds)~Sunflower Seeds~Kui Hua Zi|Ai Weiwei|||2010–2011 CE|Sculpted and painted porcelain
 `;
 
 // Image file names from the Knowt set (ap art history 250, identifiers only), in work order 1–250.

@@ -4,6 +4,7 @@
   const G = window.Grader;
   const { works } = parseWorks();
   const BY_NUM = new Map(works.map(w => [w.num, w]));
+  const EXTRA = (typeof EXTRA_IMAGES !== "undefined" && EXTRA_IMAGES) || {};
 
   const LABEL = { title: "Title", artist: "Artist", culture: "Culture or period", location: "Location", date: "Date", material: "Material" };
   const QUESTION = {
@@ -16,8 +17,23 @@
   };
   const TOMB_ORDER = ["artist", "title", "culture", "date", "location", "material"];
 
+  // ---------- images: Knowt's image first, then Smarthistory's ----------
+  const POOLS = new Map();
+  for (const w of works) {
+    const list = [];
+    if (w.image) list.push({ src: w.image, cap: "", from: "Knowt" });
+    for (const x of EXTRA[w.num] || []) {
+      list.push({ src: SH_BASE + x.s, cap: x.c || "", from: "Smarthistory", page: x.a ? "https://smarthistory.org/" + x.a + "/" : "" });
+    }
+    POOLS.set(w.num, list);
+  }
+  const badImages = new Set(); // srcs that failed to load this visit
+  const poolOf = num => (POOLS.get(num) || []).filter(p => !badImages.has(p.src));
+  const imageAt = (num, idx) => (POOLS.get(num) || [])[idx] || null;
+
+  // ---------- storage ----------
   const LS_SETTINGS = "apah.settings.v1";
-  const LS_SESSION = "apah.session.v1";
+  const LS_KEYS = { ids: "apah.session.v1", img: "apah.imgsession.v1" };
   const store = {
     get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
@@ -25,26 +41,32 @@
   };
 
   const DEFAULTS = {
-    units: [1], range: "", mode: "typed", prompt: "image",
+    tab: "ids", units: [1], range: "",
+    mode: "typed", prompt: "image",
     fields: { title: true, artist: true, culture: true, location: true, date: true, material: true },
-    mcqPer: "one", retry: "soon", order: "shuffle", strict: "lenient", tol: "0",
+    mcqPer: "one", retry: "soon", order: "shuffle", strict: "lenient", tol: "0", idsImages: "main",
+    img: { mode: "typed", per: "one", retry: "soon", order: "shuffle", strict: "lenient" },
   };
 
   function loadSettings() {
     const s = Object.assign({}, DEFAULTS, store.get(LS_SETTINGS) || {});
     s.fields = Object.assign({}, DEFAULTS.fields, s.fields || {});
+    s.img = Object.assign({}, DEFAULTS.img, s.img || {});
     if (!Array.isArray(s.units)) s.units = DEFAULTS.units.slice();
+    if (s.tab !== "ids" && s.tab !== "img") s.tab = "ids";
     return s;
   }
-  function loadSession() {
-    const s = store.get(LS_SESSION);
+  function loadSession(kind) {
+    const s = store.get(LS_KEYS[kind]);
     if (!s || s.v !== 1 || !Array.isArray(s.items) || !Array.isArray(s.queue)) return null;
     if (s.items.some(it => !BY_NUM.has(it.num))) return null;
+    s.kind = kind;
     return s;
   }
 
   let settings = loadSettings();
-  let session = loadSession();
+  const sessions = { ids: loadSession("ids"), img: loadSession("img") };
+  let session = null; // the session being reviewed right now
   let screen = "setup";
   let view = freshView();
   let lastCardKey = null;
@@ -56,9 +78,15 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + "s")}`;
-  function freshView() { return { checked: false, results: {}, hints: {}, inputs: {}, revealed: {}, options: null, chosen: null, imgFailed: false }; }
+  function freshView() { return { checked: false, results: {}, hints: {}, inputs: {}, revealed: {}, options: null, chosen: null, imgFailed: false, pick: null }; }
   function saveSettings() { store.set(LS_SETTINGS, settings); }
-  function saveSession() { if (session) store.set(LS_SESSION, session); else store.del(LS_SESSION); }
+  function saveSession(s) {
+    s = s || session;
+    if (!s) return;
+    sessions[s.kind] = s;
+    store.set(LS_KEYS[s.kind], s);
+  }
+  function dropSession(kind) { sessions[kind] = null; store.del(LS_KEYS[kind]); if (session && session.kind === kind) session = null; }
 
   function parseRange(str) {
     const nums = new Set(), bad = [];
@@ -86,29 +114,55 @@
     return FIELDS.filter(f => w.fields[f] && fieldsOn[f] && !(f === "title" && prompt === "title"));
   }
 
-  function buildSession(nums, s) {
+  // ---------- building a review ----------
+  function buildIdsSession(nums, s) {
     const items = [];
     let skipped = 0;
     for (const num of nums) {
       const w = BY_NUM.get(num);
+      const pool = POOLS.get(num) || [];
       let prompt = s.prompt === "mix" ? (Math.random() < 0.5 ? "image" : "title") : s.prompt;
-      if (!w.image) prompt = "title";
+      if (!pool.length) prompt = "title";
       let fs = askableFields(w, prompt, s.fields);
-      if (!fs.length && prompt === "title" && w.image && s.fields.title) { prompt = "image"; fs = askableFields(w, prompt, s.fields); }
+      if (!fs.length && prompt === "title" && pool.length && s.fields.title) { prompt = "image"; fs = askableFields(w, prompt, s.fields); }
       if (!fs.length) { skipped++; continue; }
+      const img = s.idsImages === "any" && pool.length ? Math.floor(Math.random() * pool.length) : 0;
       if (s.mode === "typed") {
-        items.push({ id: items.length, num, prompt, fields: fs, done: [], attempts: 0, missed: [] });
+        items.push({ id: items.length, num, prompt, img, fields: fs, done: [], attempts: 0, missed: [] });
       } else {
         const picks = s.mcqPer === "all" ? fs : [fs[Math.floor(Math.random() * fs.length)]];
-        for (const f of picks) items.push({ id: items.length, num, prompt, field: f, attempts: 0, missed: [] });
+        for (const f of picks) items.push({ id: items.length, num, prompt, img, field: f, attempts: 0, missed: [] });
       }
     }
+    return finishBuild("ids", items, s, skipped);
+  }
+
+  function buildImgSession(nums, s) {
+    const items = [];
+    let skipped = 0;
+    for (const num of nums) {
+      const pool = POOLS.get(num) || [];
+      if (!pool.length) { skipped++; continue; }
+      if (s.per === "all") pool.forEach((_, i) => items.push({ id: items.length, num, img: i, fixed: true, attempts: 0, missed: [] }));
+      else items.push({ id: items.length, num, img: Math.floor(Math.random() * pool.length), fixed: false, attempts: 0, missed: [] });
+    }
+    return finishBuild("img", items, s, skipped);
+  }
+
+  function finishBuild(kind, items, s, skipped) {
     const queue = items.map(i => i.id);
     if (s.order === "shuffle") shuffle(queue);
     return {
-      v: 1, mode: s.mode, settings: JSON.parse(JSON.stringify(s)), items, queue,
+      v: 1, kind, mode: s.mode, settings: JSON.parse(JSON.stringify(s)), items, queue,
       total: items.length, firstTryRight: 0, skipped, started: Date.now(), ended: null, finished: false,
     };
+  }
+
+  function reviewSettings(kind) {
+    if (kind === "img") return Object.assign({}, settings.img);
+    const s = Object.assign({}, settings);
+    delete s.img; delete s.tab; delete s.units; delete s.range;
+    return s;
   }
 
   const currentItem = () => session.items[session.queue[0]];
@@ -120,6 +174,12 @@
       const q = session.queue;
       const pos = session.settings.retry === "end" ? q.length : Math.min(q.length, 3 + Math.floor(Math.random() * 4));
       q.splice(pos, 0, item.id);
+      // a work coming back in image review shows a different picture of it
+      if (session.kind === "img" && !item.fixed) {
+        const pool = POOLS.get(item.num) || [];
+        const choices = pool.map((p, i) => i).filter(i => i !== item.img && !badImages.has(pool[i].src));
+        if (choices.length) item.img = choices[Math.floor(Math.random() * choices.length)];
+      }
     }
     if (!session.queue.length) { session.finished = true; session.ended = Date.now(); screen = "done"; }
     view = freshView();
@@ -133,8 +193,8 @@
 
   // ---------- rendering ----------
   function render() {
-    if (screen === "review" && (!session || session.finished)) screen = session ? "done" : "setup";
-    if (screen === "done" && !session) screen = "setup";
+    if ((screen === "review" || screen === "done") && !session) screen = "setup";
+    if (screen === "review" && session.finished) screen = "done";
     if (screen === "setup") renderSetup();
     else if (screen === "browse") renderBrowse();
     else if (screen === "review") renderReview();
@@ -149,39 +209,99 @@
 
   function countText() {
     const { nums, bad } = selectedNums();
-    const fieldsOn = Object.keys(settings.fields).filter(f => settings.fields[f]);
     let line = nums.length ? `${plural(nums.length, "work")} selected` : "No works selected yet";
     let sub = "";
-    if (nums.length && fieldsOn.length) {
-      const usable = nums.filter(n => {
-        const w = BY_NUM.get(n);
-        return FIELDS.some(f => w.fields[f] && settings.fields[f] && !(f === "title" && (settings.prompt === "title" || !w.image)));
-      }).length;
-      if (usable < nums.length) sub = `${usable} of them have the identifiers you picked`;
+    if (settings.tab === "ids") {
+      const fieldsOn = Object.keys(settings.fields).filter(f => settings.fields[f]);
+      if (nums.length && fieldsOn.length) {
+        const usable = nums.filter(n => {
+          const w = BY_NUM.get(n);
+          return FIELDS.some(f => w.fields[f] && settings.fields[f] && !(f === "title" && (settings.prompt === "title" || !(POOLS.get(n) || []).length)));
+        }).length;
+        if (usable < nums.length) sub = `${usable} of them have the identifiers you picked`;
+      }
+      if (!fieldsOn.length) sub = "Pick at least one identifier to ask";
+    } else if (nums.length) {
+      const imgs = nums.reduce((a, n) => a + (POOLS.get(n) || []).length, 0);
+      sub = `${plural(imgs, "image")} to draw from`;
     }
-    if (!fieldsOn.length) sub = "Pick at least one identifier to ask";
     return { line, sub, bad, n: nums.length };
+  }
+
+  function resumeHTML(kind) {
+    const s = sessions[kind];
+    if (!s) return "";
+    if (!s.finished) {
+      const doneN = s.total - s.queue.length;
+      const what = kind === "img" ? "Image review" : "Identifier review";
+      return `<div class="resume"><p><strong>${what} in progress.</strong> ${doneN} of ${s.total} done${s.mode === "mcq" ? " (multiple choice)" : ""}.</p>
+        <div class="btns"><button class="btn primary" data-act="resume" data-kind="${kind}">Resume</button><button class="btn" data-act="discard" data-kind="${kind}">Discard it</button></div></div>`;
+    }
+    return `<div class="resume"><p>Your last ${kind === "img" ? "image" : "identifier"} review is finished.</p><div class="btns"><button class="btn" data-act="show-done" data-kind="${kind}">See results</button></div></div>`;
+  }
+
+  function idsOptionsHTML() {
+    const s = settings;
+    const fieldsHTML = FIELDS.map(f => `<label class="check"><input type="checkbox" data-field="${f}" ${s.fields[f] ? "checked" : ""}> ${f === "title" ? "Title (image cards)" : LABEL[f]}</label>`).join("");
+    return `
+      <h3>Answer by</h3>
+      <div class="seg-row">${seg("mode", [["typed", "Typing the identifiers"], ["mcq", "Multiple choice"]], s.mode, "Answer by")}</div>
+      <h3>Show me</h3>
+      <div class="seg-row">${seg("prompt", [["image", "The image"], ["title", "The title"], ["mix", "A mix"]], s.prompt, "Show me")}</div>
+      <h3>Identifiers to ask</h3>
+      <div class="checks">${fieldsHTML}</div>
+      ${s.mode === "mcq" ? `<h3>Questions per work</h3><div class="seg-row">${seg("mcqPer", [["one", "One identifier"], ["all", "Every identifier"]], s.mcqPer, "Questions per work")}</div>` : ""}
+      <details class="more">
+        <summary>More options</summary>
+        <h3>Image on image cards</h3>
+        <div class="seg-row">${seg("idsImages", [["main", "Main image"], ["any", "Any image of the work"]], s.idsImages, "Image on image cards")}</div>
+        <h3>Missed works come back</h3>
+        <div class="seg-row">${seg("retry", [["soon", "A few cards later"], ["end", "At the end"]], s.retry, "Missed works come back")}</div>
+        <h3>Order</h3>
+        <div class="seg-row">${seg("order", [["shuffle", "Shuffled"], ["inorder", "By number"]], s.order, "Order")}</div>
+        ${s.mode === "typed" ? `<h3>Answer checking</h3>
+        <div class="seg-row">${seg("strict", [["lenient", "Lenient"], ["strict", "Strict"]], s.strict, "Answer checking")}</div>
+        <p class="help">Lenient accepts short names, a surname, or part of a location. Strict wants close to the full CED wording.</p>
+        <h3><label for="tol">Date leeway</label></h3>
+        <select id="tol">${[["0", "Exact years"], ["10", "Within 10 years"], ["25", "Within 25 years"], ["50", "Within 50 years"]].map(([v, t]) => `<option value="${v}" ${s.tol === v ? "selected" : ""}>${t}</option>`).join("")}</select>` : ""}
+      </details>`;
+  }
+
+  function imgOptionsHTML() {
+    const s = settings.img;
+    return `
+      <p class="help" style="margin:0 0 4px">You get a picture of the work, often a different view or a detail, and name it.</p>
+      <h3>Answer by</h3>
+      <div class="seg-row">${seg("img.mode", [["typed", "Typing the title"], ["mcq", "Multiple choice"]], s.mode, "Answer by")}</div>
+      <h3>Images per work</h3>
+      <div class="seg-row">${seg("img.per", [["one", "One at a time"], ["all", "Every image"]], s.per, "Images per work")}</div>
+      <p class="help">One at a time shows a random image, and a different one each time a missed work comes back. Every image asks about each picture separately.</p>
+      <details class="more">
+        <summary>More options</summary>
+        <h3>Missed images come back</h3>
+        <div class="seg-row">${seg("img.retry", [["soon", "A few cards later"], ["end", "At the end"]], s.retry, "Missed images come back")}</div>
+        <h3>Order</h3>
+        <div class="seg-row">${seg("img.order", [["shuffle", "Shuffled"], ["inorder", "By number"]], s.order, "Order")}</div>
+        ${s.mode === "typed" ? `<h3>Answer checking</h3>
+        <div class="seg-row">${seg("img.strict", [["lenient", "Lenient"], ["strict", "Strict"]], s.strict, "Answer checking")}</div>
+        <p class="help">Lenient accepts common short titles like “Vienna Genesis” and small typos.</p>` : ""}
+      </details>`;
   }
 
   function renderSetup() {
     const s = settings;
     const c = countText();
-    let resume = "";
-    if (session && !session.finished) {
-      const doneN = session.total - session.queue.length;
-      resume = `<div class="resume"><p><strong>Review in progress.</strong> ${doneN} of ${session.total} done${session.mode === "mcq" ? " (multiple choice)" : ""}.</p>
-        <div class="btns"><button class="btn primary" data-act="resume">Resume</button><button class="btn" data-act="discard">Discard it</button></div></div>`;
-    } else if (session && session.finished) {
-      resume = `<div class="resume"><p>Your last review is finished.</p><div class="btns"><button class="btn" data-act="show-done">See results</button></div></div>`;
-    }
-    const fieldsHTML = FIELDS.map(f => `<label class="check"><input type="checkbox" data-field="${f}" ${s.fields[f] ? "checked" : ""}> ${f === "title" ? "Title (image cards)" : LABEL[f]}</label>`).join("");
-
+    const tab = s.tab;
     app.innerHTML = `
       <header class="masthead">
-        <h1>AP Art History identifier review</h1>
-        <p class="lede">Choose works by unit or by number, then identify each one from its image or its title. Anything you miss comes back until you've gotten every work right once.</p>
+        <h1>AP Art History review</h1>
+        <p class="lede">Choose works by unit or by number, then drill them. Anything you miss comes back until you've gotten every one right once.</p>
       </header>
-      ${resume}
+      <div class="tabs" role="tablist" aria-label="Review type">
+        <button type="button" role="tab" id="tab-ids" aria-selected="${tab === "ids"}" aria-controls="how" data-tab="ids">Identifier review</button>
+        <button type="button" role="tab" id="tab-img" aria-selected="${tab === "img"}" aria-controls="how" data-tab="img">Image review</button>
+      </div>
+      ${resumeHTML(tab)}
       <div class="setup-grid">
         <section class="panel" aria-labelledby="h-works">
           <h2 id="h-works">Works</h2>
@@ -198,43 +318,25 @@
           <p class="help" id="range-help">${c.bad.length ? `Couldn't read: ${esc(c.bad.join(", "))}. Use numbers 1–250 and ranges like 12-47.` : "Added to any units selected above."}</p>
         </section>
 
-        <section class="panel" aria-labelledby="h-how">
-          <h2 id="h-how">How to review</h2>
-          <h3>Answer by</h3>
-          <div class="seg-row">${seg("mode", [["typed", "Typing the identifiers"], ["mcq", "Multiple choice"]], s.mode, "Answer by")}</div>
-          <h3>Show me</h3>
-          <div class="seg-row">${seg("prompt", [["image", "The image"], ["title", "The title"], ["mix", "A mix"]], s.prompt, "Show me")}</div>
-          <h3>Identifiers to ask</h3>
-          <div class="checks">${fieldsHTML}</div>
-          ${s.mode === "mcq" ? `<h3>Questions per work</h3><div class="seg-row">${seg("mcqPer", [["one", "One identifier"], ["all", "Every identifier"]], s.mcqPer, "Questions per work")}</div>` : ""}
-          <details class="more">
-            <summary>More options</summary>
-            <h3>Missed works come back</h3>
-            <div class="seg-row">${seg("retry", [["soon", "A few cards later"], ["end", "At the end"]], s.retry, "Missed works come back")}</div>
-            <h3>Order</h3>
-            <div class="seg-row">${seg("order", [["shuffle", "Shuffled"], ["inorder", "By number"]], s.order, "Order")}</div>
-            ${s.mode === "typed" ? `<h3>Answer checking</h3>
-            <div class="seg-row">${seg("strict", [["lenient", "Lenient"], ["strict", "Strict"]], s.strict, "Answer checking")}</div>
-            <p class="help">Lenient accepts short names, a surname, or part of a location. Strict wants close to the full CED wording.</p>
-            <h3><label for="tol">Date leeway</label></h3>
-            <select id="tol">${[["0", "Exact years"], ["10", "Within 10 years"], ["25", "Within 25 years"], ["50", "Within 50 years"]].map(([v, t]) => `<option value="${v}" ${s.tol === v ? "selected" : ""}>${t}</option>`).join("")}</select>` : ""}
-          </details>
+        <section class="panel" id="how" role="tabpanel" aria-labelledby="tab-${tab}">
+          <h2>${tab === "img" ? "Image review" : "Identifier review"}</h2>
+          ${tab === "img" ? imgOptionsHTML() : idsOptionsHTML()}
         </section>
       </div>
 
       <div class="start-bar">
         <p class="count" id="count">${esc(c.line)}${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>
         <button type="button" class="btn" data-act="browse" ${c.n ? "" : "disabled"}>Browse these works</button>
-        <button type="button" class="btn primary big" data-act="start" ${c.n ? "" : "disabled"}>Start review</button>
+        <button type="button" class="btn primary big" data-act="start" ${c.n ? "" : "disabled"}>Start ${tab === "img" ? "image" : "identifier"} review</button>
       </div>
 
-      <p class="credits">Identifiers follow Appendix A of the College Board's AP Art History Course and Exam Description. Images come from the Knowt set “ap art history 250 (identifiers only)” and load from Knowt's servers. Progress is saved in this browser.</p>`;
+      <p class="credits">Identifiers follow the list of required works in the College Board's AP Art History Course and Exam Description (effective fall 2020). The main image for each work comes from the Knowt set “ap art history 250 (identifiers only)”; the other images and their captions come from Smarthistory's AP Art History guide. Images load from those sites. Progress is saved in this browser.</p>`;
   }
 
   function updateCount() {
     const c = countText();
     const el = document.getElementById("count");
-    if (el) el.innerHTML = `${esc(c.line)}${c.sub ? `<small>${esc(c.sub)}</small>` : ""}`;
+    if (el) { el.style.color = ""; el.innerHTML = `${esc(c.line)}${c.sub ? `<small>${esc(c.sub)}</small>` : ""}`; }
     const help = document.getElementById("range-help");
     if (help) {
       help.className = "help" + (c.bad.length ? " bad" : "");
@@ -243,8 +345,8 @@
     app.querySelectorAll('[data-act="start"], [data-act="browse"]').forEach(b => { b.disabled = !c.n; });
   }
 
-  function imgTag(w, cls, alt) {
-    return `<img src="${esc(w.image)}" alt="${esc(alt)}" referrerpolicy="no-referrer" ${cls ? `class="${cls}"` : ""}>`;
+  function imgTag(src, alt, extra) {
+    return `<img src="${esc(src)}" alt="${esc(alt)}" referrerpolicy="no-referrer" ${extra || ""}>`;
   }
 
   function tombstone(w) {
@@ -252,17 +354,55 @@
       `<div><dt>${LABEL[f]}</dt><dd class="${f === "title" ? "t" : f === "artist" ? "a" : ""}">${esc(w.fields[f].answer)}</dd></div>`).join("") + `</dl>`;
   }
 
+  function creditHTML(p) {
+    if (!p) return "";
+    if (p.from === "Smarthistory") {
+      return `<p class="img-credit">${p.cap ? esc(p.cap) + " " : ""}<a href="${esc(p.page || "https://smarthistory.org/curated-guide/ap-art-history/")}" target="_blank" rel="noopener">Smarthistory</a></p>`;
+    }
+    return `<p class="img-credit">Image from the Knowt set.</p>`;
+  }
+
+  // which picture this card shows
+  function cardImage(item) {
+    const pool = POOLS.get(item.num) || [];
+    let p = pool[item.img];
+    if (!p || badImages.has(p.src)) {
+      const ok = pool.findIndex(x => !badImages.has(x.src));
+      if (ok < 0) return null;
+      item.img = ok;
+      p = pool[ok];
+    }
+    return p;
+  }
+
   function wallHTML(item, w) {
     const answered = view.checked;
-    const showImage = item.prompt === "image" && w.image && !view.imgFailed;
-    if (showImage) {
-      return `<button type="button" class="frame" data-act="zoom" data-src="${esc(w.image)}" aria-label="Enlarge image">${imgTag(w, "", "Work to identify")}</button>
-        ${answered ? `<p class="caption">No. ${w.num}</p>` : ""}`;
+    const showImage = session.kind === "img" || item.prompt === "image";
+    const p = showImage ? cardImage(item) : null;
+    if (showImage && p) {
+      return `<button type="button" class="frame" data-act="zoom-card" aria-label="Enlarge image">${imgTag(p.src, "Work to identify")}</button>
+        ${answered ? `<p class="caption">No. ${w.num}</p>${session.kind === "img" ? creditHTML(p) : ""}` : ""}`;
     }
-    const note = item.prompt === "image" && view.imgFailed ? `<p class="img-note">The image didn't load, so here's the title instead.</p>` : "";
-    const after = answered && w.image && !view.imgFailed
-      ? `<button type="button" class="frame small" data-act="zoom" data-src="${esc(w.image)}" aria-label="Enlarge image">${imgTag(w, "", w.fields.title.answer)}</button>` : "";
+    const note = showImage ? `<p class="img-note">The image didn't load, so here's the title instead.</p>` : "";
+    const first = poolOf(w.num)[0];
+    const after = answered && first
+      ? `<button type="button" class="frame small" data-act="zoom-work" data-num="${w.num}" aria-label="Enlarge image">${imgTag(first.src, w.fields.title.answer)}</button>` : "";
     return `${note}<div class="placard"><span class="no">No. ${w.num}</span><h2 class="work-title">${esc(w.fields.title.answer)}</h2></div>${after}`;
+  }
+
+  function fieldRow(f, key, pend) {
+    let state = "", fb = "";
+    if (view.checked) {
+      const ok = view.results[f];
+      state = ok ? "right" : "wrong";
+      fb = ok
+        ? `<p class="fb ok"><span class="mark" aria-hidden="true">✓</span><span class="sr-only">Correct.</span><span class="key">${esc(key.answer)}</span></p>`
+        : `<p class="fb no"><span class="mark" aria-hidden="true">✗</span><span class="sr-only">Missed. Answer:</span><span class="key">${esc(key.answer)}</span>${view.hints[f] ? ` <em class="hint">${esc(view.hints[f])}</em>` : ""}</p>
+           <button type="button" class="btn small override" data-act="override" data-f="${f}">Count mine as right</button>`;
+    }
+    return `<div class="row ${state}"><label class="lab" for="in-${f}">${LABEL[f]}</label>
+      <input id="in-${f}" class="in" data-f="${f}" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="${f === pend[pend.length - 1] ? "done" : "next"}" ${view.checked ? "readonly" : ""} value="${esc(view.inputs[f] || "")}">
+      ${fb}</div>`;
   }
 
   function typedHTML(item, w) {
@@ -274,18 +414,7 @@
         return `<div class="row locked${shown ? " shown" : ""}"><span class="lab">${LABEL[f]}</span>
           <button type="button" class="locked-btn" data-act="reveal" data-f="${f}" aria-expanded="${shown}">${shown ? `<span class="ans">${esc(key.answer)}</span>` : `You got this one already. Show answer`}</button></div>`;
       }
-      let state = "", fb = "";
-      if (view.checked) {
-        const ok = view.results[f];
-        state = ok ? "right" : "wrong";
-        fb = ok
-          ? `<p class="fb ok"><span class="mark" aria-hidden="true">✓</span><span class="sr-only">Correct.</span><span class="key">${esc(key.answer)}</span></p>`
-          : `<p class="fb no"><span class="mark" aria-hidden="true">✗</span><span class="sr-only">Missed. Answer:</span><span class="key">${esc(key.answer)}</span>${view.hints[f] ? ` <em class="hint">${esc(view.hints[f])}</em>` : ""}</p>
-             <button type="button" class="btn small override" data-act="override" data-f="${f}">Count mine as right</button>`;
-      }
-      return `<div class="row ${state}"><label class="lab" for="in-${f}">${LABEL[f]}</label>
-        <input id="in-${f}" class="in" data-f="${f}" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="${f === pend[pend.length - 1] ? "done" : "next"}" ${view.checked ? "readonly" : ""} value="${esc(view.inputs[f] || "")}">
-        ${fb}</div>`;
+      return fieldRow(f, key, pend);
     }).join("");
 
     let actions;
@@ -305,16 +434,31 @@
       <h2 class="q">${title}</h2>${rows}${actions}</form>`;
   }
 
-  function buildOptions(item, w) {
-    const f = item.field, key = w.fields[f];
+  function imgTypedHTML(item, w) {
+    let actions;
+    if (!view.checked) {
+      actions = `<div class="actions"><button type="submit" class="btn primary big">Check</button></div>
+        <p class="tip">Short titles count, like “Vienna Genesis” or “The Great Wave.” Leave it blank if you don't know.</p>`;
+    } else {
+      const ok = view.results.title;
+      const when = session.settings.retry === "end" ? "at the end" : "in a few cards";
+      actions = `<div class="actions"><button type="button" class="btn primary big" data-act="next">Next</button>
+        <p class="note${ok ? " good" : ""}">${ok ? "Right." : `This work comes back ${when}${item.fixed ? "" : " with a different image"}.`}</p></div>${tombstone(w)}`;
+    }
+    return `<form class="label-card" id="typed-form" autocomplete="off" novalidate>
+      <h2 class="q">What is this work called?</h2>${fieldRow("title", w.fields.title, ["title"])}${actions}</form>`;
+  }
+
+  function buildOptions(field, w) {
+    const key = w.fields[field];
     const seen = new Set([G.fold(key.answer).trim()]);
-    const cands = works.filter(o => o !== w && o.fields[f])
+    const cands = works.filter(o => o !== w && o.fields[field])
       .sort((a, b) => Math.abs(a.num - w.num) - Math.abs(b.num - w.num));
     const pool = [];
     for (const o of cands) {
-      const v = o.fields[f].answer, k = G.fold(v).trim();
+      const v = o.fields[field].answer, k = G.fold(v).trim();
       if (seen.has(k)) continue;
-      if (G.grade(f, key, v, {}).correct) continue; // would also count as right
+      if (G.grade(field, key, v, {}).correct) continue; // would also count as right
       seen.add(k);
       pool.push(v);
       if (pool.length >= 9) break;
@@ -324,7 +468,8 @@
   }
 
   function mcqHTML(item, w) {
-    if (!view.options) view.options = buildOptions(item, w);
+    const field = session.kind === "img" ? "title" : item.field;
+    if (!view.options) view.options = buildOptions(field, w);
     const opts = view.options.map((o, i) => {
       let cls = "opt";
       if (view.checked) cls += o.correct ? " right" : i === view.chosen ? " wrong" : " dim";
@@ -334,63 +479,70 @@
     if (view.checked) {
       const ok = view.options[view.chosen].correct;
       const when = session.settings.retry === "end" ? "at the end" : "in a few cards";
+      const again = session.kind === "img" ? (item.fixed ? "This image comes back" : "This work comes back with a different image") : "This question comes back";
       after = `<div class="actions"><button type="button" class="btn primary big" data-act="next">Next</button>
-        <p class="note${ok ? " good" : ""}">${ok ? "Right." : `Not quite. This question comes back ${when}.`}</p></div>${tombstone(w)}`;
+        <p class="note${ok ? " good" : ""}">${ok ? "Right." : `Not quite. ${again} ${when}.`}</p></div>${tombstone(w)}`;
     }
-    const skip = !view.checked && item.field === "title" && item.prompt === "image" && view.imgFailed
-      ? `<div class="actions"><button type="button" class="btn" data-act="skip">Skip this card</button></div>` : "";
-    return `<div class="label-card"><h2 class="q">${QUESTION[item.field]}</h2><div class="opts">${opts}</div>${skip}${after}
+    return `<div class="label-card"><h2 class="q">${QUESTION[field]}</h2><div class="opts">${opts}</div>${after}
       ${view.checked ? "" : `<p class="tip">Press 1–4 to answer.</p>`}</div>`;
   }
 
   function renderReview() {
     const item = currentItem();
     const w = BY_NUM.get(item.num);
+    if (session.kind === "img" && !cardImage(item)) { item.attempts++; session.skipped++; advance(item, true); return; }
     const doneN = session.total - session.queue.length;
     const retryN = session.queue.filter(id => session.items[id].attempts > 0).length;
     const pct = session.total ? Math.round(100 * doneN / session.total) : 0;
-    const cardKey = `${item.id}:${item.attempts}`;
+    const cardKey = `${session.kind}:${item.id}:${item.attempts}`;
     const isNewCard = cardKey !== lastCardKey;
     lastCardKey = cardKey;
+
+    let side;
+    if (session.kind === "img") side = session.mode === "typed" ? imgTypedHTML(item, w) : mcqHTML(item, w);
+    else side = session.mode === "typed" ? typedHTML(item, w) : mcqHTML(item, w);
 
     app.innerHTML = `
       <div class="topbar">
         <button type="button" class="btn small" data-act="exit">Exit</button>
         <div class="progress" aria-label="Progress">
           <div class="bar"><span style="width:${pct}%"></span></div>
-          <p>${doneN} of ${session.total} done${retryN ? `, ${retryN} to retry` : ""}</p>
+          <p>${session.kind === "img" ? "Image review: " : ""}${doneN} of ${session.total} done${retryN ? `, ${retryN} to retry` : ""}</p>
         </div>
       </div>
       <div class="stage">
         <div class="wall">${wallHTML(item, w)}</div>
-        <div class="side">${session.mode === "typed" ? typedHTML(item, w) : mcqHTML(item, w)}</div>
+        <div class="side">${side}</div>
       </div>`;
 
-    const img = app.querySelector(".wall .frame img");
-    if (img && item.prompt === "image") img.addEventListener("error", onImageError, { once: true });
+    const img = app.querySelector(".wall .frame:not(.small) img");
+    if (img) img.addEventListener("error", onImageError, { once: true });
 
     if (isNewCard) {
       window.scrollTo(0, 0);
       prefetchNext();
     }
-    if (session.mode === "typed") {
-      if (!view.checked) {
-        const first = pendingFields(item).map(f => document.getElementById("in-" + f)).find(el => el && !el.value) ||
-          document.getElementById("in-" + pendingFields(item)[0]);
-        if (first && isNewCard && window.matchMedia("(hover: hover)").matches) first.focus();
-      } else {
-        const nb = app.querySelector('[data-act="next"]');
-        if (nb) nb.focus({ preventScroll: true });
-      }
+    const typed = session.mode === "typed";
+    if (typed && !view.checked) {
+      const ids = session.kind === "img" ? ["title"] : pendingFields(item);
+      const first = ids.map(f => document.getElementById("in-" + f)).find(el => el && !el.value) || document.getElementById("in-" + ids[0]);
+      if (first && isNewCard && window.matchMedia("(hover: hover)").matches) first.focus();
     } else if (view.checked) {
       const nb = app.querySelector('[data-act="next"]');
       if (nb) nb.focus({ preventScroll: true });
     }
   }
 
-  function onImageError() {
+  function onImageError(e) {
     const item = currentItem();
-    view.imgFailed = true;
+    const src = e && e.target && e.target.getAttribute("src");
+    if (src) badImages.add(src);
+    if (session.kind === "img") {
+      if (item.fixed) { item.attempts++; session.skipped++; advance(item, true); return; }
+      render(); // cardImage() moves on to another picture of the work
+      return;
+    }
+    if (poolOf(item.num).length) { render(); return; }
     if (session.mode === "typed" && item.fields.includes("title") && !item.done.includes("title")) {
       item.done.push("title"); // the title is now on screen, so it can't be asked
       if (!pendingFields(item).length) { advance(item, true); return; }
@@ -401,8 +553,10 @@
   function prefetchNext() {
     const id = session.queue[1];
     if (id == null) return;
-    const w = BY_NUM.get(session.items[id].num);
-    if (w && w.image) { const im = new Image(); im.referrerPolicy = "no-referrer"; im.src = w.image; }
+    const it = session.items[id];
+    if (session.kind === "ids" && it.prompt !== "image") return;
+    const p = imageAt(it.num, it.img);
+    if (p) { const im = new Image(); im.referrerPolicy = "no-referrer"; im.src = p.src; }
   }
 
   function renderDone() {
@@ -416,11 +570,13 @@
       it.missed.forEach(f => { if (!arr.includes(f)) arr.push(f); });
       missed.set(it.num, arr);
     }
-    const unit = s.mode === "typed" ? "work" : "question";
+    const unit = s.kind === "img" ? "image" : s.mode === "typed" ? "work" : "question";
     const list = [...missed.entries()].sort((a, b) => a[0] - b[0]).map(([num, fs]) => {
       const w = BY_NUM.get(num);
-      const th = w.image ? `<img class="thumb" src="${esc(w.image)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="thumb none">No image</span>`;
-      return `<li>${th}<div><div class="t">No. ${num}: ${esc(w.fields.title.answer)}</div><div class="m">Missed ${fs.map(f => LABEL[f].toLowerCase()).join(", ")}</div></div></li>`;
+      const p = poolOf(num)[0];
+      const th = p ? `<img class="thumb" src="${esc(p.src)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="thumb none">No image</span>`;
+      const what = s.kind === "img" ? `Missed ${plural(fs.length, "time")}` : `Missed ${fs.map(f => LABEL[f].toLowerCase()).join(", ")}`;
+      return `<li>${th}<div><div class="t">No. ${num}: ${esc(w.fields.title.answer)}</div><div class="m">${what}</div></div></li>`;
     }).join("");
 
     app.innerHTML = `
@@ -437,37 +593,73 @@
         <button type="button" class="btn${missed.size ? "" : " primary big"}" data-act="again-all">Review the same works again</button>
         <button type="button" class="btn" data-act="home">Back to setup</button>
       </div>
-      ${missed.size ? `<h2 class="panel-title" style="font:400 22px/1.2 var(--serif);margin:24px 0 12px">Missed at least once</h2><ul class="missed">${list}</ul>` : ""}
-      ${s.skipped ? `<p class="help">${plural(s.skipped, "work")} skipped because they don't have any of the identifiers you picked.</p>` : ""}`;
+      ${missed.size ? `<h2 class="section-title">Missed at least once</h2><ul class="missed">${list}</ul>` : ""}
+      ${s.skipped ? `<p class="help">${plural(s.skipped, s.kind === "img" ? "image" : "work")} skipped (no image, an image that didn't load, or none of the identifiers you picked).</p>` : ""}`;
   }
 
   function renderBrowse() {
     const { nums } = selectedNums();
     const cards = nums.map(n => {
       const w = BY_NUM.get(n);
-      const pic = w.image
-        ? `<button type="button" class="pic" data-act="zoom" data-src="${esc(w.image)}" aria-label="Enlarge image of ${esc(w.fields.title.answer)}"><img src="${esc(w.image)}" alt="${esc(w.fields.title.answer)}" loading="lazy" referrerpolicy="no-referrer"></button>`
-        : `<div class="pic none">No image in the Knowt set</div>`;
-      return `<article class="card">${pic}<div class="body"><span class="no">No. ${n}</span>${tombstone(w)}</div></article>`;
+      const pool = poolOf(n);
+      const pic = pool.length
+        ? `<button type="button" class="pic" data-act="zoom-work" data-num="${n}" aria-label="View images of ${esc(w.fields.title.answer)}">${imgTag(pool[0].src, w.fields.title.answer, 'loading="lazy"')}</button>`
+        : `<div class="pic none">No image</div>`;
+      const more = pool.length > 1 ? `<button type="button" class="btn small more-imgs" data-act="zoom-work" data-num="${n}">See all ${pool.length} images</button>` : "";
+      return `<article class="card">${pic}<div class="body"><span class="no">No. ${n}</span>${tombstone(w)}${more}</div></article>`;
     }).join("");
     app.innerHTML = `
       <div class="browse-head">
         <h1>${plural(nums.length, "work")}</h1>
-        <div class="btns" style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="btns">
           <button type="button" class="btn" data-act="home">Back to setup</button>
-          <button type="button" class="btn primary" data-act="start">Start review</button>
+          <button type="button" class="btn primary" data-act="start">Start ${settings.tab === "img" ? "image" : "identifier"} review</button>
         </div>
       </div>
       <div class="cards">${cards}</div>`;
     window.scrollTo(0, 0);
   }
 
+  // ---------- lightbox ----------
+  const lb = { list: [], i: 0, captions: true };
+  const lbImg = lightbox.querySelector("img");
+  const lbCap = lightbox.querySelector(".lb-cap");
+  const lbCount = lightbox.querySelector(".lb-count");
+  function openLightbox(list, i, captions) {
+    if (!list.length) return;
+    lb.list = list; lb.i = i || 0; lb.captions = captions !== false;
+    showLightbox();
+    lightbox.hidden = false;
+    lightbox.querySelector(".lb-close").focus();
+  }
+  function showLightbox() {
+    const p = lb.list[lb.i];
+    lbImg.referrerPolicy = "no-referrer";
+    lbImg.src = p.src;
+    lbCap.innerHTML = lb.captions ? (p.from === "Smarthistory" ? `${esc(p.cap)} <a href="${esc(p.page || "https://smarthistory.org/")}" target="_blank" rel="noopener">Smarthistory</a>` : "Image from the Knowt set.") : "";
+    const many = lb.list.length > 1;
+    lightbox.querySelector(".lb-prev").hidden = !many;
+    lightbox.querySelector(".lb-next").hidden = !many;
+    lbCount.textContent = many ? `${lb.i + 1} of ${lb.list.length}` : "";
+  }
+  function stepLightbox(d) { if (lb.list.length > 1) { lb.i = (lb.i + d + lb.list.length) % lb.list.length; showLightbox(); } }
+  function closeLightbox() { lightbox.hidden = true; lbImg.removeAttribute("src"); }
+  lightbox.addEventListener("click", e => {
+    const b = e.target.closest("[data-lb]");
+    if (b) { e.stopPropagation(); if (b.dataset.lb === "prev") stepLightbox(-1); else if (b.dataset.lb === "next") stepLightbox(1); else closeLightbox(); return; }
+    if (e.target.closest("a")) return;
+    if (e.target === lbImg) { stepLightbox(1); if (lb.list.length < 2) closeLightbox(); return; }
+    closeLightbox();
+  });
+
   // ---------- actions ----------
-  function start(nums) {
-    const s = settings;
-    if (!Object.values(s.fields).some(Boolean)) { alertInline("Pick at least one identifier to ask."); return; }
-    const sess = buildSession(nums, s);
-    if (!sess.total) { alertInline("None of these works have the identifiers you picked. Turn on more identifiers."); return; }
+  function start(kind, nums, s) {
+    if (kind === "ids" && !Object.values(s.fields).some(Boolean)) { alertInline("Pick at least one identifier to ask."); return; }
+    const sess = kind === "img" ? buildImgSession(nums, s) : buildIdsSession(nums, s);
+    if (!sess.total) {
+      alertInline(kind === "img" ? "None of these works have images." : "None of these works have the identifiers you picked. Turn on more identifiers.");
+      return;
+    }
     session = sess;
     view = freshView();
     lastCardKey = null;
@@ -478,14 +670,19 @@
 
   function alertInline(msg) {
     const el = document.getElementById("count");
-    if (el) { el.innerHTML = `${esc(msg)}`; el.style.color = "var(--wrong)"; setTimeout(() => { el.style.color = ""; updateCount(); }, 3500); }
+    if (el) { el.textContent = msg; el.style.color = "var(--wrong)"; setTimeout(updateCount, 3500); }
+  }
+
+  function readInputs() {
+    app.querySelectorAll(".row .in").forEach(el => { if (!el.readOnly) view.inputs[el.dataset.f] = el.value; });
   }
 
   function checkTyped() {
     const item = currentItem(), w = BY_NUM.get(item.num);
-    app.querySelectorAll(".row .in").forEach(el => { view.inputs[el.dataset.f] = el.value; });
+    readInputs();
     const opts = gradeOpts();
-    for (const f of pendingFields(item)) {
+    const fields = session.kind === "img" ? ["title"] : pendingFields(item);
+    for (const f of fields) {
       const val = (view.inputs[f] || "").trim();
       const r = val ? G.grade(f, w.fields[f], val, opts) : { correct: false };
       view.results[f] = !!r.correct;
@@ -497,6 +694,14 @@
 
   function nextTyped() {
     const item = currentItem();
+    if (session.kind === "img") {
+      const ok = !!view.results.title;
+      item.attempts++;
+      if (!ok) item.missed.push("title");
+      if (item.attempts === 1 && ok) session.firstTryRight++;
+      advance(item, ok);
+      return;
+    }
     const pend = pendingFields(item);
     const wrong = pend.filter(f => !view.results[f]);
     item.attempts++;
@@ -517,7 +722,8 @@
     const item = currentItem();
     const ok = view.options[view.chosen].correct;
     item.attempts++;
-    if (!ok && !item.missed.includes(item.field)) item.missed.push(item.field);
+    const tag = session.kind === "img" ? "title" : item.field;
+    if (!ok) { if (session.kind === "img" || !item.missed.includes(tag)) item.missed.push(tag); }
     if (item.attempts === 1 && ok) session.firstTryRight++;
     advance(item, ok);
   }
@@ -527,14 +733,22 @@
     if (session.mode === "typed") nextTyped(); else nextMcq();
   }
 
-  function openLightbox(src) {
-    const img = lightbox.querySelector("img");
-    img.referrerPolicy = "no-referrer";
-    img.src = src;
-    lightbox.hidden = false;
+  function setSetting(path, val) {
+    if (path.startsWith("img.")) settings.img[path.slice(4)] = val;
+    else settings[path] = val;
+    saveSettings();
   }
-  function closeLightbox() { lightbox.hidden = true; lightbox.querySelector("img").removeAttribute("src"); }
-  lightbox.addEventListener("click", closeLightbox);
+
+  function rerenderSetupKeepingDetails() {
+    const openMore = !!app.querySelector("details.more[open]");
+    renderSetup();
+    if (openMore) { const d = app.querySelector("details.more"); if (d) d.open = true; }
+  }
+
+  function againFrom(nums) {
+    const kind = session.kind;
+    start(kind, nums, Object.assign({}, session.settings));
+  }
 
   app.addEventListener("click", e => {
     const t = e.target.closest("button");
@@ -547,45 +761,32 @@
       saveSettings(); updateCount();
       return;
     }
-    if (t.dataset.set) {
-      settings[t.dataset.set] = t.dataset.val;
-      saveSettings();
-      const openMore = !!app.querySelector("details.more[open]");
-      renderSetup();
-      if (openMore) { const d = app.querySelector("details.more"); if (d) d.open = true; }
-      return;
-    }
+    if (t.dataset.tab) { settings.tab = t.dataset.tab; saveSettings(); renderSetup(); return; }
+    if (t.dataset.set) { setSetting(t.dataset.set, t.dataset.val); rerenderSetupKeepingDetails(); return; }
 
     switch (t.dataset.act) {
       case "units-all": settings.units = UNITS.map(u => u.n); saveSettings(); renderSetup(); break;
       case "units-none": settings.units = []; saveSettings(); renderSetup(); break;
-      case "start": start(selectedNums().nums); break;
+      case "start": start(settings.tab, selectedNums().nums, reviewSettings(settings.tab)); break;
       case "browse": screen = "browse"; render(); break;
-      case "home": screen = "setup"; render(); window.scrollTo(0, 0); break;
-      case "resume": view = freshView(); lastCardKey = null; screen = "review"; render(); break;
-      case "discard": session = null; saveSession(); renderSetup(); break;
-      case "show-done": screen = "done"; render(); break;
-      case "exit": screen = "setup"; render(); window.scrollTo(0, 0); break;
-      case "zoom": openLightbox(t.dataset.src); break;
-      case "reveal": view.revealed[t.dataset.f] = !view.revealed[t.dataset.f]; rememberInputs(); render(); break;
+      case "home": case "exit": screen = "setup"; render(); window.scrollTo(0, 0); break;
+      case "resume": session = sessions[t.dataset.kind]; view = freshView(); lastCardKey = null; screen = "review"; render(); break;
+      case "discard": dropSession(t.dataset.kind); renderSetup(); break;
+      case "show-done": session = sessions[t.dataset.kind]; screen = "done"; render(); break;
+      case "zoom-card": {
+        const p = cardImage(currentItem());
+        if (p) openLightbox([p], 0, view.checked && session.kind === "img");
+        break;
+      }
+      case "zoom-work": openLightbox(poolOf(parseInt(t.dataset.num, 10)), 0, true); break;
+      case "reveal": view.revealed[t.dataset.f] = !view.revealed[t.dataset.f]; readInputs(); render(); break;
       case "override": view.results[t.dataset.f] = true; view.hints[t.dataset.f] = ""; render(); break;
       case "next": goNext(); break;
       case "choose": chooseMcq(parseInt(t.dataset.i, 10)); break;
-      case "skip": { const it = currentItem(); it.attempts++; advance(it, true); break; }
-      case "again-missed": {
-        const nums = [...new Set(session.items.filter(i => i.missed.length).map(i => i.num))].sort((a, b) => a - b);
-        const keep = settings; settings = Object.assign({}, session.settings); start(nums); settings = keep; break;
-      }
-      case "again-all": {
-        const nums = [...new Set(session.items.map(i => i.num))].sort((a, b) => a - b);
-        const keep = settings; settings = Object.assign({}, session.settings); start(nums); settings = keep; break;
-      }
+      case "again-missed": againFrom([...new Set(session.items.filter(i => i.missed.length).map(i => i.num))].sort((a, b) => a - b)); break;
+      case "again-all": againFrom([...new Set(session.items.map(i => i.num))].sort((a, b) => a - b)); break;
     }
   });
-
-  function rememberInputs() {
-    app.querySelectorAll(".row .in").forEach(el => { if (!el.readOnly) view.inputs[el.dataset.f] = el.value; });
-  }
 
   app.addEventListener("submit", e => {
     if (e.target.id === "typed-form") { e.preventDefault(); if (!view.checked) checkTyped(); }
@@ -599,11 +800,8 @@
 
   app.addEventListener("change", e => {
     const t = e.target;
-    if (t.dataset.field) {
-      settings.fields[t.dataset.field] = t.checked; saveSettings(); updateCount();
-    } else if (t.id === "tol") {
-      settings.tol = t.value; saveSettings();
-    }
+    if (t.dataset.field) { settings.fields[t.dataset.field] = t.checked; saveSettings(); updateCount(); }
+    else if (t.id === "tol") { settings.tol = t.value; saveSettings(); }
   });
 
   app.addEventListener("keydown", e => {
@@ -618,14 +816,20 @@
   });
 
   document.addEventListener("keydown", e => {
-    if (!lightbox.hidden) { if (e.key === "Escape") closeLightbox(); return; }
-    if (screen !== "review" || e.metaKey || e.ctrlKey || e.altKey) return;
-    const tag = (document.activeElement && document.activeElement.tagName) || "";
+    if (!lightbox.hidden) {
+      if (e.key === "Escape") closeLightbox();
+      else if (e.key === "ArrowRight") stepLightbox(1);
+      else if (e.key === "ArrowLeft") stepLightbox(-1);
+      return;
+    }
+    if (screen !== "review" || !session || e.metaKey || e.ctrlKey || e.altKey) return;
+    const ae = document.activeElement;
+    const tag = (ae && ae.tagName) || "";
     if (session.mode === "mcq" && !view.checked && /^[1-4]$/.test(e.key)) {
       e.preventDefault(); chooseMcq(parseInt(e.key, 10) - 1); return;
     }
-    const typing = tag === "INPUT" && !document.activeElement.readOnly;
-    if (view.checked && (e.key === "Enter" || (e.key === " " && session.mode === "mcq")) && tag !== "BUTTON" && !typing) {
+    const typing = tag === "INPUT" && !ae.readOnly;
+    if (view.checked && (e.key === "Enter" || (e.key === " " && session.mode === "mcq")) && tag !== "BUTTON" && tag !== "A" && !typing) {
       e.preventDefault(); goNext();
     }
   });

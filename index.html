@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <meta name="description" content="Review identifiers for the 250 AP Art History required works by unit or number, typed or multiple choice.">
+  <meta name="description" content="Review the 250 AP Art History required works: identifiers and images, by unit or number, typed or multiple choice.">
   <title>AP Art History Review</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='2' fill='%232747A8'/%3E%3Crect x='8' y='8' width='16' height='16' fill='none' stroke='%23F2D27A' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,12 +14,18 @@
 </head>
 <body>
   <main id="app" class="shell" aria-live="polite"></main>
-  <div id="lightbox" class="lightbox" hidden>
-    <img alt="">
-    <p class="lightbox-hint">Click anywhere or press Esc to close</p>
+  <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button type="button" class="lb-close" data-lb="close" aria-label="Close">×</button>
+    <button type="button" class="lb-prev" data-lb="prev" aria-label="Previous image">‹</button>
+    <figure class="lb-fig">
+      <img alt="">
+      <figcaption><span class="lb-count"></span> <span class="lb-cap"></span></figcaption>
+    </figure>
+    <button type="button" class="lb-next" data-lb="next" aria-label="Next image">›</button>
   </div>
   <noscript><p class="shell">This review site needs JavaScript turned on.</p></noscript>
   <script src="works.js"></script>
+  <script src="images.js"></script>
   <script src="grading.js"></script>
   <script src="app.js"></script>
 </body>
