@@ -13,7 +13,7 @@ A static review site for the 250 required works, with two tabs:
 | --- | --- |
 | `index.html` | The page |
 | `styles.css` | Styles |
-| `works.js` | The 250 works and their identifiers, plus the main image for each |
+| `works.js` | The 250 works and their identifiers, the main image for each, and date leniency |
 | `images.js` | Extra images per work from Smarthistory |
 | `grading.js` | Checks typed answers |
 | `app.js` | Everything else |
@@ -42,5 +42,6 @@ To drop an extra image you don't like, delete its line in `images.js`.
 
 - Identifiers follow the list of required works in the College Board AP Art History Course and Exam Description (effective fall 2020).
 - The main image for each work comes from the Knowt set "ap art history 250 (identifiers only)". Extra images and their captions come from Smarthistory's AP Art History guide (https://smarthistory.org/curated-guide/ap-art-history/), matched by work number including the guide's sub-articles (for example 17a, 17b, 17c), and kept only when the caption shows the work itself. Images load from those sites, so the site needs an internet connection.
-- Typed answers are checked leniently by default: small typos, short names (e.g. "Vienna Genesis"), a surname, or part of a location count. Dates must match the CED numbers and era (BCE vs. CE); "More options" has a date leeway setting and a strict mode. If the checker marks something wrong that you know is right, use **Count mine as right**.
+- Typed answers are checked leniently by default: small typos, short names (e.g. "Vienna Genesis"), a surname, or part of a location count. If the checker marks something wrong that you know is right, use **Count mine as right**.
+- Typed dates in lenient checking get AP-style year leniency: a year counts if it falls within that many years of one of the work's CED dates (c. 1450–1540 with ±50 accepts 1400 to 1590), and the era (BCE vs. CE) must be right. The values come from AP Art History FRQ scoring guides (2021–2025) where available and are listed in `DATE_LENIENCY` in `works.js`; other works use a default by era: before 1000 BCE ±1000, 1000 BCE–1399 CE ±100, 1400–1899 ±50, 1900–1949 ±25, 1950 on ±10. **Browse these works** shows each work's leniency. Strict checking and multiple choice don't use it.
 - Settings and in-progress reviews are saved in your browser's local storage, separately for each tab.

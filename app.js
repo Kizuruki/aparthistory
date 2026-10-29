@@ -5,6 +5,9 @@
   const { works } = parseWorks();
   const BY_NUM = new Map(works.map(w => [w.num, w]));
   const EXTRA = (typeof EXTRA_IMAGES !== "undefined" && EXTRA_IMAGES) || {};
+  const LENIENCY = (typeof DATE_LENIENCY !== "undefined" && DATE_LENIENCY) || {};
+  // years either side of the CED date that a typed date may be off by, when checking is lenient
+  const leniencyOf = w => (LENIENCY[w.num] != null ? LENIENCY[w.num] : G.defaultLeniency(w.fields.date.answer));
 
   const LABEL = { title: "Title", artist: "Artist", culture: "Culture or period", location: "Location", date: "Date", material: "Material" };
   const QUESTION = {
@@ -44,7 +47,7 @@
     tab: "ids", units: [1], range: "",
     mode: "typed", prompt: "image",
     fields: { title: true, artist: true, culture: true, location: true, date: true, material: true },
-    mcqPer: "one", retry: "soon", order: "shuffle", strict: "lenient", tol: "0", idsImages: "main",
+    mcqPer: "one", retry: "soon", order: "shuffle", strict: "lenient", idsImages: "main",
     img: { mode: "typed", per: "one", retry: "soon", order: "shuffle", strict: "lenient" },
   };
 
@@ -78,7 +81,7 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + "s")}`;
-  function freshView() { return { checked: false, results: {}, hints: {}, inputs: {}, revealed: {}, options: null, chosen: null, imgFailed: false, pick: null }; }
+  function freshView() { return { checked: false, results: {}, hints: {}, notes: {}, inputs: {}, revealed: {}, options: null, chosen: null, imgFailed: false, pick: null }; }
   function saveSettings() { store.set(LS_SETTINGS, settings); }
   function saveSession(s) {
     s = s || session;
@@ -187,8 +190,9 @@
     render();
   }
 
-  function gradeOpts() {
-    return { strict: session.settings.strict === "strict", dateTolerance: parseInt(session.settings.tol, 10) || 0 };
+  function gradeOpts(w) {
+    const strict = session.settings.strict === "strict";
+    return { strict, leniency: strict ? undefined : leniencyOf(w) };
   }
 
   // ---------- rendering ----------
@@ -261,9 +265,7 @@
         <div class="seg-row">${seg("order", [["shuffle", "Shuffled"], ["inorder", "By number"]], s.order, "Order")}</div>
         ${s.mode === "typed" ? `<h3>Answer checking</h3>
         <div class="seg-row">${seg("strict", [["lenient", "Lenient"], ["strict", "Strict"]], s.strict, "Answer checking")}</div>
-        <p class="help">Lenient accepts short names, a surname, or part of a location. Strict wants close to the full CED wording.</p>
-        <h3><label for="tol">Date leeway</label></h3>
-        <select id="tol">${[["0", "Exact years"], ["10", "Within 10 years"], ["25", "Within 25 years"], ["50", "Within 50 years"]].map(([v, t]) => `<option value="${v}" ${s.tol === v ? "selected" : ""}>${t}</option>`).join("")}</select>` : ""}
+        <p class="help">Lenient accepts short names, a surname, part of a location, and any year within the AP scoring leniency for that work (for example ±50 years for c. 1450–1540, so 1400 to 1590 counts). Strict wants close to the full CED wording and dates.</p>` : ""}
       </details>`;
   }
 
@@ -349,9 +351,11 @@
     return `<img src="${esc(src)}" alt="${esc(alt)}" referrerpolicy="no-referrer" ${extra || ""}>`;
   }
 
-  function tombstone(w) {
-    return `<dl class="tomb">` + TOMB_ORDER.filter(f => w.fields[f]).map(f =>
-      `<div><dt>${LABEL[f]}</dt><dd class="${f === "title" ? "t" : f === "artist" ? "a" : ""}">${esc(w.fields[f].answer)}</dd></div>`).join("") + `</dl>`;
+  function tombstone(w, showLeniency) {
+    return `<dl class="tomb">` + TOMB_ORDER.filter(f => w.fields[f]).map(f => {
+      const len = f === "date" && showLeniency ? ` <span class="len" title="Typed answers within this many years count in lenient checking">±${leniencyOf(w)} years</span>` : "";
+      return `<div><dt>${LABEL[f]}</dt><dd class="${f === "title" ? "t" : f === "artist" ? "a" : ""}">${esc(w.fields[f].answer)}${len}</dd></div>`;
+    }).join("") + `</dl>`;
   }
 
   function creditHTML(p) {
@@ -396,7 +400,7 @@
       const ok = view.results[f];
       state = ok ? "right" : "wrong";
       fb = ok
-        ? `<p class="fb ok"><span class="mark" aria-hidden="true">✓</span><span class="sr-only">Correct.</span><span class="key">${esc(key.answer)}</span></p>`
+        ? `<p class="fb ok"><span class="mark" aria-hidden="true">✓</span><span class="sr-only">Correct.</span><span class="key">${esc(key.answer)}</span>${view.notes[f] ? ` <em class="hint">${esc(view.notes[f])}</em>` : ""}</p>`
         : `<p class="fb no"><span class="mark" aria-hidden="true">✗</span><span class="sr-only">Missed. Answer:</span><span class="key">${esc(key.answer)}</span>${view.hints[f] ? ` <em class="hint">${esc(view.hints[f])}</em>` : ""}</p>
            <button type="button" class="btn small override" data-act="override" data-f="${f}">Count mine as right</button>`;
     }
@@ -606,7 +610,7 @@
         ? `<button type="button" class="pic" data-act="zoom-work" data-num="${n}" aria-label="View images of ${esc(w.fields.title.answer)}">${imgTag(pool[0].src, w.fields.title.answer, 'loading="lazy"')}</button>`
         : `<div class="pic none">No image</div>`;
       const more = pool.length > 1 ? `<button type="button" class="btn small more-imgs" data-act="zoom-work" data-num="${n}">See all ${pool.length} images</button>` : "";
-      return `<article class="card">${pic}<div class="body"><span class="no">No. ${n}</span>${tombstone(w)}${more}</div></article>`;
+      return `<article class="card">${pic}<div class="body"><span class="no">No. ${n}</span>${tombstone(w, true)}${more}</div></article>`;
     }).join("");
     app.innerHTML = `
       <div class="browse-head">
@@ -680,13 +684,14 @@
   function checkTyped() {
     const item = currentItem(), w = BY_NUM.get(item.num);
     readInputs();
-    const opts = gradeOpts();
+    const opts = gradeOpts(w);
     const fields = session.kind === "img" ? ["title"] : pendingFields(item);
     for (const f of fields) {
       const val = (view.inputs[f] || "").trim();
       const r = val ? G.grade(f, w.fields[f], val, opts) : { correct: false };
       view.results[f] = !!r.correct;
       view.hints[f] = r.hint || "";
+      view.notes[f] = r.note || "";
     }
     view.checked = true;
     render();
@@ -780,7 +785,7 @@
       }
       case "zoom-work": openLightbox(poolOf(parseInt(t.dataset.num, 10)), 0, true); break;
       case "reveal": view.revealed[t.dataset.f] = !view.revealed[t.dataset.f]; readInputs(); render(); break;
-      case "override": view.results[t.dataset.f] = true; view.hints[t.dataset.f] = ""; render(); break;
+      case "override": view.results[t.dataset.f] = true; view.hints[t.dataset.f] = ""; view.notes[t.dataset.f] = "Counted by you"; render(); break;
       case "next": goNext(); break;
       case "choose": chooseMcq(parseInt(t.dataset.i, 10)); break;
       case "again-missed": againFrom([...new Set(session.items.filter(i => i.missed.length).map(i => i.num))].sort((a, b) => a - b)); break;
@@ -801,7 +806,6 @@
   app.addEventListener("change", e => {
     const t = e.target;
     if (t.dataset.field) { settings.fields[t.dataset.field] = t.checked; saveSettings(); updateCount(); }
-    else if (t.id === "tol") { settings.tol = t.value; saveSettings(); }
   });
 
   app.addEventListener("keydown", e => {

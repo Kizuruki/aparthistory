@@ -157,8 +157,12 @@
   }
 
   // ---------- dates ----------
+  function normDate(s) {
+    return fold(s).replace(/(\d),(?=\d{3})/g, "$1").replace(/[‐-―−]/g, "-");
+  }
+
   function parseDate(s) {
-    let t = fold(s).replace(/(\d),(?=\d{3})/g, "$1").replace(/[‐-―−]/g, "-");
+    const t = normDate(s);
     const eras = [];
     const eraRe = /\b(b\.?\s?c\.?\s?e\.?|b\.?\s?c\.?)(?![a-z])|\b(c\.?\s?e\.?|a\.?\s?d\.?)(?![a-z])/g;
     let m;
@@ -176,7 +180,7 @@
       else { v = parseInt(m[1], 10); kind = "year"; }
       const next = eras.find(e => e.pos > pos), prevE = [...eras].reverse().find(e => e.pos < pos);
       const era = next ? next.era : prevE ? prevE.era : "none";
-      vals.push({ v, kind, era, pos });
+      vals.push({ v, kind, era, pos, end: pos + m[0].length });
     }
     return vals;
   }
@@ -196,6 +200,71 @@
       return u.v > (k.v - 1) * 100 - tol && u.v <= k.v * 100 + tol;
     }
     return false;
+  }
+
+  // ---------- AP scoring leniency for typed dates ----------
+  // Each date in a CED answer becomes a span of signed years (BCE negative). Centuries and
+  // millennia cover their full range, narrowed by "early" / "mid" / "late"; dates joined by
+  // "-", "to" or "or" form one span ("late 19th to early 20th century" = 1851–1950).
+  const LINK_NOISE = /\b(b\.?\s?c\.?\s?e\.?|b\.?\s?c\.?|c\.?\s?e\.?|a\.?\s?d\.?)(?![a-z])|\bc\.(?=\s|\d|$)|\bca\b\.?|\bcirca\b|\b(early|mid|late)\b|\bcentur(y|ies)\b|\bmillenni(um|a)\b/g;
+  const PART = { early: [0, 0.5], mid: [0.25, 0.75], late: [0.5, 1] };
+
+  function interval(val, before) {
+    const sign = val.era === "bce" ? -1 : 1;
+    if (val.kind === "year") return [sign * val.v, sign * val.v];
+    const size = val.kind === "millennium" ? 1000 : 100;
+    // inclusive at both ends, so "11th century" covers 1000 through 1100
+    const lo = sign > 0 ? (val.v - 1) * size : -val.v * size;
+    const hi = sign > 0 ? val.v * size : -(val.v - 1) * size;
+    const flags = before.match(/\b(early|mid|late)\b/g);
+    if (!flags) return [lo, hi];
+    const a = PART[flags[0]][0], b = PART[flags[flags.length - 1]][1], n = hi - lo;
+    return [lo + Math.round(a * n), lo + Math.round(b * n)];
+  }
+
+  function dateSpans(s) {
+    const t = normDate(s), spans = [];
+    let cur = null, prevEnd = 0;
+    for (const v of parseDate(s)) {
+      const before = t.slice(prevEnd, v.pos);
+      const iv = interval(v, before);
+      const link = before.replace(LINK_NOISE, " ").replace(/[\s.]+/g, " ").trim();
+      if (cur && /^(-|to|or|through|until)$/.test(link)) { cur[0] = Math.min(cur[0], iv[0]); cur[1] = Math.max(cur[1], iv[1]); }
+      else { cur = [iv[0], iv[1]]; spans.push(cur); }
+      prevEnd = v.end;
+    }
+    return spans;
+  }
+
+  // Every year the person typed must fall within leniency years of one of the work's dates.
+  // A century or millennium counts if it overlaps a date or its middle falls in the window.
+  function withinLeniency(answer, user, L, flipEra) {
+    const spans = dateSpans(answer);
+    const t = normDate(user), U = parseDate(user);
+    if (!spans.length || !U.length) return false;
+    let prevEnd = 0;
+    return U.every(u => {
+      const uu = flipEra ? Object.assign({}, u, { era: u.era === "bce" ? "ce" : "bce" }) : u;
+      const iv = interval(uu, t.slice(prevEnd, u.pos));
+      prevEnd = u.end;
+      return spans.some(([lo, hi]) => {
+        if (u.kind === "year") return iv[0] >= lo - L && iv[0] <= hi + L;
+        const mid = (iv[0] + iv[1]) / 2;
+        return (iv[0] < hi && iv[1] > lo) || (mid >= lo - L && mid <= hi + L);
+      });
+    });
+  }
+
+  // Leniency for works without an observed scoring-guide value, by the work's earliest date.
+  function defaultLeniency(answer) {
+    const spans = dateSpans(answer);
+    if (!spans.length) return 0;
+    const start = Math.min(...spans.map(sp => sp[0]));
+    if (start < -1000) return 1000;
+    if (start < 1400) return 100;
+    if (start < 1900) return 50;
+    if (start < 1950) return 25;
+    return 10;
   }
 
   function gradeDate(key, user, opts) {
@@ -221,7 +290,17 @@
         return hitR >= need || (lenient && hitA >= need);
       };
       if (test(false)) return { correct: true };
-      if (test(true)) hint = A.some(k => k.era === "bce") ? "Check B.C.E. vs. C.E." : "Check the era (B.C.E./C.E.)";
+      if (test(true)) hint = A.some(k => k.era === "bce") ? "Check BCE vs. CE." : "Check the era (BCE/CE).";
+    }
+    // AP scoring leniency: only when checking is lenient and the caller gives a leniency
+    const L = opts.leniency;
+    if (lenient && typeof L === "number") {
+      for (const a of answers) {
+        if (withinLeniency(a, user, 0)) return { correct: true, note: "Inside the CED date range" };
+        if (L > 0 && withinLeniency(a, user, L)) return { correct: true, note: `Within ±${L} years (AP scoring leniency)` };
+      }
+      if (!hint && answers.some(a => withinLeniency(a, user, L, true))) hint = "Check BCE vs. CE.";
+      if (!hint && L > 0) hint = `Counts if within ±${L} years`;
     }
     return { correct: false, hint };
   }
@@ -232,6 +311,6 @@
     return gradeText(field, key, user, !!opts.strict);
   }
 
-  const api = { grade, tokens, parseDate, fold };
+  const api = { grade, tokens, parseDate, fold, dateSpans, defaultLeniency };
   if (typeof module !== "undefined") module.exports = api; else root.Grader = api;
 })(typeof window !== "undefined" ? window : globalThis);

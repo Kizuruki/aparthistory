@@ -312,6 +312,54 @@ c81f1a1bab124be39b58b73ea43527de.jpg 44430802565c46ffbd08fa4b6d01dcaa.jpg 7955b2
 858a7e356a884997b6f934e52aa65240.jpg 7d1418eb3b4343c2aab663290ab94ab5.png e73ca3dc8ab34e5ba6bdb7fc00703cf3.jpg c91163f8fda847c7b4046b8d158c2e1d.png 48865d03a0bc41ad8f340e6cc0ddc661.jpg
 `;
 
+// Date leniency for typed answers when checking is lenient: a year counts if it falls within this
+// many years before or after one of the work's CED dates (1450–1540 with 50 accepts 1400–1590).
+// These are the values AP Art History FRQ scoring guides (2021–2025) accepted for these works.
+// Every other work gets a default from its earliest date (defaultLeniency in grading.js):
+// before 1000 BCE ±1000, 1000 BCE–1399 CE ±100, 1400–1899 ±50, 1900–1949 ±25, 1950 on ±10.
+const DATE_LENIENCY = {
+  22: 1000,   // Akhenaten, Nefertiti, and three daughters: c. 1353–1335 BCE
+  55: 50,     // Lindisfarne Gospels: c. 700
+  60: 50,     // Chartres Cathedral: 1145–1155, 1194–1220 (12th–13th centuries also accepted)
+  93: 50,     // Versailles: begun 1669
+  101: 50,    // The Swing: 1767
+  102: 25,    // Monticello: 1768–1809
+  105: 25,    // Vigée Le Brun, Self-Portrait: 1790
+  112: 25,    // Palace of Westminster: 1840–1870
+  121: 50,    // The Coiffure: 1890–1891
+  123: 50,    // Where Do We Come From?: 1897–1898
+  126: 25,    // Les Demoiselles d'Avignon: 1907
+  127: 25,    // The Steerage: 1907
+  133: 25,    // Self-Portrait as a Soldier: 1915
+  140: 25,    // The Two Fridas: 1939
+  152: 10,    // House in New Castle County: 1978–1983
+  157: 100,   // Templo Mayor: 1375–1520 (one guide accepted ±100, another ±50)
+  158: 50,    // Ruler's feather headdress: 1428–1520
+  160: 50,    // Maize cobs: c. 1440–1533
+  161: 50,    // Machu Picchu: c. 1450–1540
+  162: 50,    // All-T'oqapu tunic: 1450–1540
+  163: 50,    // Bandolier bag: c. 1850
+  168: 100,   // Great Mosque of Djenné: founded c. 1200
+  175: 25,    // Sande Sowei mask: 19th to 20th century
+  176: 25,    // Ikenga: c. 19th to 20th century
+  177: 25,    // Lukasa: c. 19th to 20th century
+  178: 25,    // Aka elephant mask: c. 19th to 20th century
+  179: 25,    // Reliquary figure (byeri): c. 19th to 20th century
+  181: 100,   // Petra: c. 400 BCE–100 CE
+  186: 50,    // Great Mosque (Masjid-e Jameh), Isfahan: c. 700
+  190: 50,    // The Court of Gayumars: c. 1522–1525
+  199: 100,   // Angkor: c. 800–1400
+  201: 100,   // Travelers among Mountains and Streams: c. 1000
+  202: 100,   // Shiva as Lord of Dance: c. 11th century
+  207: 50,    // Ryoan-ji: c. 1480
+  234: 10,    // Earth's Creation: 1994
+  235: 10,    // Rebellious Silence: 1994
+  236: 10,    // No Crying Allowed in the Barbershop: 1994
+  237: 10,    // Pisupo Lua Afe: 1994
+  248: 10,    // Shibboleth: 2007–2008
+  250: 10,    // Kui Hua Zi (Sunflower Seeds): 2010–2011
+};
+
 const UNITS = [
   { n: 1, name: "Global Prehistory", from: 1, to: 11 },
   { n: 2, name: "Ancient Mediterranean", from: 12, to: 47 },
@@ -348,4 +396,4 @@ function parseWorks() {
   return { works, imageCount: images.length };
 }
 
-if (typeof module !== "undefined") module.exports = { WORKS_RAW, IMAGES_RAW, UNITS, FIELDS, parseWorks };
+if (typeof module !== "undefined") module.exports = { WORKS_RAW, IMAGES_RAW, UNITS, FIELDS, DATE_LENIENCY, parseWorks };
